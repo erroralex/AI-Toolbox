@@ -721,15 +721,15 @@ onMounted(loadTree);
 
 <style scoped>
 .folder-nav-glass {
-  background: var(--bg-sidebar-left);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--border-light);
-  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface-1, #14151B);
+  border-right: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--shadow-card, 0 1px 2px rgba(0,0,0,0.4));
+  width: 224px !important;
+  min-width: 220px !important;
 }
 
 .text-gradient {
-  background: var(--grad-text);
+  background: var(--gradient-brand-text, linear-gradient(90deg, #4FD8D0, #9B7EF5));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -737,7 +737,7 @@ onMounted(loadTree);
 
 .separator-line {
   height: 1px;
-  background: var(--border-light);
+  background: var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   margin: 0.5rem 0;
   width: 100%;
 }
@@ -745,28 +745,36 @@ onMounted(loadTree);
 .glass-dialog .p-dialog-header,
 .glass-dialog .p-dialog-content,
 .glass-dialog .p-dialog-footer {
-  background: var(--bg-panel-opaque) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-input) !important;
+  background: var(--color-surface-1, #14151B) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+  border-color: var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
 }
 
 .glass-input {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-  color: var(--text-primary) !important;
+  background: var(--color-surface-2, #23252F) !important;
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
 }
 
 .glass-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10));
 }
 
 .nav-logo {
-    width: 240px;
-    height: 120px;
-    object-fit: contain;
-    opacity: 0.9;
+  max-width: 140px;
+  height: auto;
+  max-height: 48px;
+  object-fit: contain;
+  opacity: 0.75;
+  transition: opacity var(--duration-fast, 120ms) var(--ease-standard);
+  cursor: pointer;
 }
+
+.nav-logo:hover {
+  opacity: 1;
+}
+
 
 :deep(.p-tree) {
   background: transparent !important;

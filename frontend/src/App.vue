@@ -1,174 +1,134 @@
 <script setup>
 /**
  * @file App.vue
- * @description The root component of the Latent Library application, defining the global layout and navigation structure.
- *
- * This component serves as the primary layout shell for the entire application. It manages the
- * global navigation bar, window controls for the Electron environment, and the integration
- * of the folder navigation sidebar. It utilizes a centralized Pinia store to coordinate
- * state across different views and provides a consistent user experience through a
- * glassmorphism-inspired design.
- *
- * Key Responsibilities:
- * - **Global Navigation:** Defines and renders the primary navigation links (Gallery, Collections, etc.).
- * - **Window Management:** Implements IPC-based controls for minimizing, maximizing, and closing
- *   the application window when running in Electron.
- * - **Layout Orchestration:** Coordinates the positioning of the header, sidebar, and main content area.
- * - **Visual Feedback:** Hosts the global PrimeVue Toast component for application-wide notifications.
- * - **Error Handling:** Integrates with the SystemError component to provide a global error boundary.
+ * @description The root layout shell of Latent Library powered by the Latent Design System.
  */
-import {RouterView, useRouter, useRoute} from 'vue-router'
-import Button from 'primevue/button';
+import { computed, ref, onMounted } from 'vue';
+import { RouterView, useRouter, useRoute } from 'vue-router';
 import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
-import {ref, onMounted} from "vue";
+import Titlebar from '@/components/ds/Titlebar.vue';
+import SegmentedControl from '@/components/ds/SegmentedControl.vue';
 import FolderNav from '@/components/FolderNav.vue';
 import SystemError from '@/components/SystemError.vue';
-import {useBrowserStore} from '@/stores/browser';
+import { useBrowserStore } from '@/stores/browser';
 
 const router = useRouter();
 const route = useRoute();
 const store = useBrowserStore();
 
-const items = ref([
-  {
-    label: 'Gallery',
-    icon: 'pi pi-images',
-    path: '/'
+const navOptions = [
+  { label: 'Gallery', value: '/' },
+  { label: 'Collections', value: '/collections' },
+  { label: 'Comparator', value: '/comparator' },
+  { label: 'Scrubber', value: '/scrub' },
+  { label: 'Speed Sorter', value: '/speedsorter' },
+  { label: 'Duplicates', value: '/duplicates' }
+];
+
+const currentNavValue = computed({
+  get() {
+    const path = route.path;
+    if (path === '/' || path.startsWith('/browser')) return '/';
+    const match = navOptions.find(opt => opt.value !== '/' && path.startsWith(opt.value));
+    return match ? match.value : '/';
   },
-  {
-    label: 'Collections',
-    icon: 'pi pi-folder',
-    path: '/collections'
-  },
-  {
-    label: 'Comparator',
-    icon: 'pi pi-arrow-right-arrow-left',
-    path: '/comparator'
-  },
-  {
-    label: 'Scrubber',
-    icon: 'pi pi-shield',
-    path: '/scrub'
-  },
-  {
-    label: 'Speed Sorter',
-    icon: 'pi pi-bolt',
-    path: '/speedsorter'
-  },
-  {
-    label: 'Duplicates',
-    icon: 'pi pi-clone',
-    path: '/duplicates'
+  set(val) {
+    router.push(val);
   }
-]);
+});
 
 onMounted(() => {
   store.initialize();
 });
-
-const navigate = (path) => {
-  router.push(path);
-};
-
-const isActive = (path) => {
-  if (path === '/') {
-    return route.path === '/' || route.path.startsWith('/browser');
-  }
-  if (path !== '/' && route.path.startsWith(path)) return true;
-  return false;
-};
-
-const minimizeWindow = () => {
-  if (window.windowAPI) window.windowAPI.minimize();
-};
-
-const maximizeWindow = () => {
-  if (window.windowAPI) window.windowAPI.maximize();
-};
-
-const closeWindow = () => {
-  if (window.windowAPI) window.windowAPI.close();
-};
 </script>
 
 <template>
-  <SystemError v-if="store.backendError"/>
+  <SystemError v-if="store.backendError" />
 
-  <div v-else class="layout-wrapper h-screen flex flex-column overflow-hidden">
-    <Toast position="bottom-right"/>
-    <ConfirmDialog></ConfirmDialog>
+  <div v-else class="app-layout">
+    <Toast position="bottom-right" />
+    <ConfirmDialog />
 
-    <div v-if="store.isLoading && !store.files.length"
-         class="loading-overlay flex align-items-center justify-content-center">
-      <div class="flex flex-column align-items-center gap-3">
-        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-        <span class="text-xl font-bold text-gray-400">Initializing System...</span>
+    <div
+      v-if="store.isLoading && !store.files.length"
+      class="loading-overlay"
+    >
+      <div class="loading-box">
+        <i class="pi pi-spin pi-spinner text-4xl" style="color: var(--color-accent-primary)" />
+        <span class="loading-text">Initializing Latent System...</span>
       </div>
     </div>
 
-    <header class="menubar-glass flex align-items-center pl-5 pr-1 py-2 gap-5 draggable-header">
-      <div class="flex align-items-center gap-3 mr-5 no-drag">
-        <img src="@/assets/icon.png" alt="Logo" style="height: 42px;"/>
-        <span class="text-2xl font-bold text-gradient text-primary">Latent Library</span>
-      </div>
+    <!-- Latent Design System Frameless Titlebar -->
+    <Titlebar title="Latent Library">
+      <template #default>
+        <SegmentedControl
+          v-model="currentNavValue"
+          :options="navOptions"
+          size="md"
+        />
+      </template>
+    </Titlebar>
 
-      <div class="flex gap-2 flex-grow-1 no-drag overflow-x-auto custom-scrollbar pb-1">
-        <Button v-for="item in items" :key="item.path"
-                :label="item.label"
-                :icon="item.icon"
-                class="nav-btn p-button-text font-semibold text-lg px-4 py-2 transition-all transition-duration-200 white-space-nowrap"
-                :class="{ 'active-nav-btn': isActive(item.path) }"
-                @click="navigate(item.path)"/>
-      </div>
-
-      <div class="flex gap-1 no-drag ml-2">
-        <Button icon="pi pi-minus"
-                class="p-button-text text-gray-400 hover:text-white hover:bg-white-alpha-10 w-3rem h-3rem"
-                @click="minimizeWindow"/>
-        <Button icon="pi pi-window-maximize"
-                class="p-button-text text-gray-400 hover:text-white hover:bg-white-alpha-10 w-3rem h-3rem"
-                @click="maximizeWindow"/>
-        <Button icon="pi pi-times" class="window-close-btn p-button-text text-gray-400 w-3rem h-3rem"
-                @click="closeWindow"/>
-      </div>
-    </header>
-
-    <main class="flex-grow-1 overflow-hidden flex">
-      <FolderNav/>
-      <div class="flex-grow-1 overflow-hidden relative">
-        <RouterView/>
+    <main class="app-body">
+      <FolderNav />
+      <div class="content-workspace">
+        <RouterView />
       </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-.menubar-glass {
-  background: var(--bg-header);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--border-light);
-  box-shadow: var(--shadow-panel);
-  z-index: 1000;
+.app-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg-canvas, #0A0A0D);
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(79, 216, 208, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(155, 126, 245, 0.04) 0%, transparent 40%);
+  color: var(--color-text-primary, #F2F3F7);
 }
 
-.draggable-header {
-  -webkit-app-region: drag;
+.app-body {
+  flex-grow: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
 }
 
-.no-drag {
-  -webkit-app-region: no-drag;
+.content-workspace {
+  flex-grow: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .loading-overlay {
   position: fixed;
   inset: 0;
-  background: var(--bg-app);
+  background: var(--color-bg-canvas, #0A0A0D);
   z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.text-primary {
-  color: var(--accent-primary) !important;
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-text {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #9294A3);
 }
 </style>

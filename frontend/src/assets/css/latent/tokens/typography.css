@@ -1,0 +1,15 @@
+:root{
+--font-sans:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+--font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+--text-display:40px;--text-display-lh:1.1;
+--text-h1:28px;--text-h1-lh:1.2;
+--text-h2:22px;--text-h2-lh:1.25;
+--text-h3:17px;--text-h3-lh:1.3;
+--text-body-lg:16px;--text-body-lg-lh:1.55;
+--text-body:14px;--text-body-lh:1.55;
+--text-body-sm:13px;--text-body-sm-lh:1.5;
+--text-caption:11px;--text-caption-lh:1.4;
+--text-mono:13px;--text-mono-lh:1.6;
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-extrabold:800;
+--tracking-tight:-0.01em;--tracking-normal:0;--tracking-wide:0.02em;--tracking-caps:0.07em;
+}
