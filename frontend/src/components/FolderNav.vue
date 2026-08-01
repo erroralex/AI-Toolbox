@@ -3,14 +3,13 @@
  * @file FolderNav.vue
  * @description Dedicated Folder & Collection Navigation Tree Panel placed to the right of the main Sidemenu.
  */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import api from '@/services/api';
 import { useBrowserStore } from '@/stores/browser';
 import { useRouter, useRoute } from 'vue-router';
 import Tree from 'primevue/tree';
 import CustomContextMenu from './CustomContextMenu.vue';
 import { useToast } from 'primevue/usetoast';
-import Button from 'primevue/button';
 import { Plus } from 'lucide-vue-next';
 
 const store = useBrowserStore();
@@ -19,49 +18,172 @@ const route = useRoute();
 const toast = useToast();
 
 const nodes = ref([]);
+const expandedKeys = ref({ 'collections': true, 'pinned': true, 'drives': true });
 const selectedKey = ref({});
-const expandedKeys = ref({});
+const contextMenuSelection = ref(null);
+
 const cm = ref();
 const menuModel = ref([]);
-const contextNode = ref(null);
+
+const normalizePath = (p) => {
+  if (!p) return '';
+  return p.replace(/\\/g, '/').toLowerCase().replace(/\/$/, '');
+};
+
+const findNodeByPath = (nodesList, path) => {
+  if (!nodesList || !path) return null;
+  const searchPath = normalizePath(path);
+  for (const node of nodesList) {
+    if (node.data?.path && normalizePath(node.data.path) === searchPath) return node;
+    if (node.children && node.children.length > 0) {
+      const found = findNodeByPath(node.children, path);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const syncSelection = () => {
+  let newSelection = {};
+  if (store.activeCollection) {
+    const root = nodes.value.find(n => n.key === 'collections');
+    const node = root?.children?.find(c => c.data === store.activeCollection);
+    if (node) newSelection[node.key] = true;
+  } else if (store.lastFolderPath) {
+    const node = findNodeByPath(nodes.value, store.lastFolderPath);
+    if (node) newSelection[node.key] = true;
+  }
+
+  if (JSON.stringify(newSelection) !== JSON.stringify(selectedKey.value)) {
+    selectedKey.value = newSelection;
+  }
+};
 
 const loadTree = async () => {
+  const rootNodes = [];
+
+  // 1. Collections
   try {
-    const res = await api.get('/tree/roots');
-    nodes.value = res.data;
-    if (store.lastFolderPath) {
-      expandPathToNode(store.lastFolderPath);
-    }
+    const colRes = await api.get('/collections');
+    const colChildren = (colRes.data || []).map(c => ({
+      key: `col-${c.name}`,
+      label: c.name,
+      data: c.name,
+      icon: 'pi pi-folder',
+      type: 'collection',
+      leaf: true
+    }));
+    rootNodes.push({
+      key: 'collections',
+      label: 'Collections',
+      icon: 'pi pi-list',
+      children: colChildren,
+      type: 'root',
+      leaf: false
+    });
   } catch (e) {
-    console.error('Failed to load tree roots:', e);
+    console.error('Error loading collections', e);
+  }
+
+  rootNodes.push({ key: 'sep-1', type: 'separator', selectable: false });
+
+  // 2. Pinned
+  try {
+    const pinRes = await api.get('/folders/pinned');
+    const pinChildren = (pinRes.data || []).map(p => ({
+      key: `pinned-${p.path}`,
+      label: p.name || p.path,
+      data: p,
+      icon: 'pi pi-bookmark',
+      type: 'pinned',
+      leaf: false
+    }));
+    rootNodes.push({
+      key: 'pinned',
+      label: 'Pinned',
+      icon: 'pi pi-bookmark',
+      children: pinChildren,
+      type: 'root',
+      leaf: false
+    });
+  } catch (e) {
+    console.error('Error loading pinned folders', e);
+  }
+
+  rootNodes.push({ key: 'sep-2', type: 'separator', selectable: false });
+
+  // 3. This PC (Drives)
+  try {
+    const driveRes = await api.get('/folders/roots');
+    const driveChildren = (driveRes.data || []).map(d => ({
+      key: `drive-${d.path}`,
+      label: d.name || d.path,
+      data: d,
+      icon: 'pi pi-server',
+      type: 'folder',
+      leaf: false
+    }));
+    rootNodes.push({
+      key: 'drives',
+      label: 'This PC',
+      icon: 'pi pi-desktop',
+      children: driveChildren,
+      type: 'root',
+      leaf: false
+    });
+  } catch (e) {
+    console.error('Error loading drives', e);
+  }
+
+  nodes.value = rootNodes;
+  expandedKeys.value = { ...expandedKeys.value, 'collections': true, 'pinned': true, 'drives': true };
+  syncSelection();
+};
+
+const onNodeExpand = async (event) => {
+  const actualNode = event.node || event;
+  if (!actualNode.data?.path || actualNode._loaded) return;
+  actualNode.loading = true;
+  try {
+    const res = await api.get('/folders/children', { params: { path: actualNode.data.path } });
+    actualNode.children = (res.data || []).map(f => ({
+      key: `${actualNode.key}-${f.name}`,
+      label: f.name || f.path,
+      data: f,
+      icon: f.isDirectory ? 'pi pi-folder' : 'pi pi-file',
+      type: 'folder',
+      leaf: !f.isDirectory,
+      children: []
+    }));
+    actualNode._loaded = true;
+    syncSelection();
+  } catch (e) {
+    console.error('Failed to load children for folder:', e);
+  } finally {
+    actualNode.loading = false;
   }
 };
 
-const onNodeExpand = async (node) => {
-  if (node.children && node.children.length > 0 && node.children[0].label !== 'Loading...') return;
-  try {
-    node.children = [{ key: node.key + '_loading', label: 'Loading...', leaf: true }];
-    const res = await api.get('/tree/children', { params: { path: node.data } });
-    node.children = res.data;
-  } catch (e) {
-    node.children = [];
-  }
-};
+const navigateToNode = (node) => {
+  if (!node || node.type === 'separator' || node.type === 'root') return;
 
-const onNodeSelect = (node) => {
-  if (node.type === 'separator') return;
   if (node.type === 'collection') {
-    store.setCollection(node.data);
-  } else if (node.data) {
-    store.loadPath(node.data);
+    const collectionName = node.data;
+    store.loadCollection(collectionName);
+    if (router.currentRoute.value.path !== '/') {
+      router.push('/');
+    }
+  } else if (node.data?.path) {
+    const path = node.data.path;
+    store.loadFolder(path);
+    if (router.currentRoute.value.path !== '/') {
+      router.push('/');
+    }
   }
 };
 
-const onNodeClick = (node) => {
-  if (node.type === 'separator') return;
-  if (node.children && node.children.length > 0) {
-    expandedKeys.value[node.key] = !expandedKeys.value[node.key];
-  }
+const onNodeSelect = (event) => {
+  navigateToNode(event.node || event);
 };
 
 const pinNewFolder = async () => {
@@ -71,9 +193,9 @@ const pinNewFolder = async () => {
   }
   if (path) {
     try {
-      await api.post('/system/pin-folder', null, { params: { path } });
+      await api.post('/folders/pin', null, { params: { path } });
       toast.add({ severity: 'success', summary: 'Pinned', detail: `Folder pinned: ${path}`, life: 2000 });
-      loadTree();
+      await loadTree();
     } catch (e) {
       toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to pin folder', life: 3000 });
     }
@@ -81,44 +203,68 @@ const pinNewFolder = async () => {
 };
 
 const onCustomContextMenu = (event, node) => {
-  contextNode.value = node;
-  const items = [];
+  if (!node || node.type === 'separator' || node.type === 'root') return;
 
-  if (node.type === 'pinned') {
-    items.push({
-      label: 'Unpin Folder',
-      icon: 'pi pi-times',
+  contextMenuSelection.value = node;
+
+  const items = [
+    {
+      label: 'Pin Folder',
+      icon: 'pi pi-bookmark',
       command: async () => {
-        try {
-          await api.post('/system/unpin-folder', null, { params: { path: node.data } });
+        if (node.data?.path) {
+          await api.post('/folders/pin', null, { params: { path: node.data.path } });
           loadTree();
-        } catch (e) {}
-      }
-    });
-  }
-
-  if (node.type === 'collection') {
-    items.push({
-      label: 'Delete Collection',
+        }
+      },
+      visible: node.type !== 'pinned' && node.type !== 'collection' && node.data?.path
+    },
+    {
+      label: 'Unpin Folder',
+      icon: 'pi pi-bookmark-fill',
+      command: async () => {
+        const path = node.data?.path || node.data;
+        if (path) {
+          await api.post('/folders/unpin', null, { params: { path } });
+          loadTree();
+        }
+      },
+      visible: node.type === 'pinned'
+    },
+    {
+      label: 'Remove Collection',
       icon: 'pi pi-trash',
       command: async () => {
-        try {
+        if (node.data) {
           await api.delete(`/collections/${encodeURIComponent(node.data)}`);
           loadTree();
-        } catch (e) {}
-      }
-    });
-  }
+        }
+      },
+      visible: node.type === 'collection'
+    },
+    { separator: true },
+    {
+      label: 'Open in Speed Sorter',
+      icon: 'pi pi-bolt',
+      command: () => {
+        if (node.data?.path) {
+          router.push({ path: '/speedsorter', query: { folder: node.data.path } });
+        }
+      },
+      visible: !!node.data?.path
+    }
+  ];
 
-  if (items.length > 0) {
-    menuModel.value = items;
+  const visibleItems = items.filter(item => item.visible !== false);
+  if (visibleItems.length > 0 && cm.value) {
+    menuModel.value = visibleItems;
     cm.value.show(event);
   }
 };
 
-const expandPathToNode = async (targetPath) => {
-  // Path expansion logic
-};
+watch(() => store.navRefreshKey, loadTree);
+watch(() => [store.lastFolderPath, store.activeCollection], syncSelection);
+watch(nodes, syncSelection);
 
 onMounted(loadTree);
 </script>
@@ -143,7 +289,6 @@ onMounted(loadTree);
         :lazy="true"
         @node-expand="onNodeExpand"
         @node-select="onNodeSelect"
-        @node-click="onNodeClick"
         class="clean-tree"
       >
         <template #default="slotProps">

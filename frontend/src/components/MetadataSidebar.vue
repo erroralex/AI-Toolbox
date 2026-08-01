@@ -363,21 +363,30 @@ const cancelEdit = () => {
   border-radius: var(--radius-md, 8px);
 }
 
+:deep(.lora-chip.p-chip),
 .lora-chip {
-  background: var(--color-accent-secondary-bg, rgba(155, 126, 245, 0.12)) !important;
+  background: var(--color-surface-2, #23252F) !important;
   color: var(--color-accent-secondary, #9B7EF5) !important;
-  border: 1px solid rgba(155, 126, 245, 0.25) !important;
+  border: 1px solid rgba(155, 126, 245, 0.35) !important;
+  border-radius: 999px !important;
+  font-family: var(--font-mono, "JetBrains Mono", monospace) !important;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
 }
 
+:deep(.ai-tag-chip.p-chip),
 .ai-tag-chip {
   background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12)) !important;
   color: var(--color-accent-primary, #4FD8D0) !important;
   border: 1px solid rgba(79, 216, 208, 0.25) !important;
+  border-radius: 999px !important;
 }
 
+:deep(.ai-tag-chip.p-chip:hover),
 .ai-tag-chip:hover {
   background: rgba(79, 216, 208, 0.22) !important;
 }
+
 
 .text-yellow-500 {
   color: var(--color-warning, #F5B84E) !important;

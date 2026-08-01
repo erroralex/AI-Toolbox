@@ -1,31 +1,16 @@
 <script setup>
 /**
  * @file TaggerSidebar.vue
- * @description Sidebar component for AI Auto-Tagging controls using the WD14 model.
- *
- * This component provides a user interface for managing the AI-based image interrogation
- * process. It handles model status monitoring, download orchestration, and the execution
- * of tagging tasks for both individual images and entire directories.
- *
- * Key functionalities:
- * - **Model Management:** Monitors the readiness of the WD14 ONNX model and provides
- *   a guided download experience with progress tracking.
- * - **Confidence Control:** Features a slider to adjust the confidence threshold for
- *   predicted tags, allowing users to balance precision and recall.
- * - **Task Execution:** Triggers asynchronous tagging operations on the backend,
- *   supporting both single-image and batch-folder processing.
- * - **Real-time Feedback:** Polls the backend for model status and provides visual
- *   loading states during inference tasks.
- * - **Metadata Integration:** Automatically refreshes the browser's metadata view
- *   after a single image has been successfully tagged.
+ * @description Sidebar component for AI Auto-Tagging controls using the WD14 model aligned with the Latent Design System.
  */
-import {ref, onMounted, onUnmounted, computed} from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import api from '@/services/api';
-import Button from 'primevue/button';
-import ProgressBar from 'primevue/progressbar';
-import Slider from 'primevue/slider';
-import {useToast} from 'primevue/usetoast';
-import {useBrowserStore} from '@/stores/browser';
+import LButton from '@/components/ds/LButton.vue';
+import LSlider from '@/components/ds/LSlider.vue';
+import LProgressBar from '@/components/ds/LProgressBar.vue';
+import { useToast } from 'primevue/usetoast';
+import { useBrowserStore } from '@/stores/browser';
+import { Download, Tag, Tags, Folder, CloudDownload } from 'lucide-vue-next';
 
 const store = useBrowserStore();
 const toast = useToast();
@@ -45,7 +30,7 @@ const checkStatus = async () => {
     const res = await api.get('/tagger/status');
     modelStatus.value = res.data;
   } catch (e) {
-    console.error("Failed to check tagger status", e);
+    console.error('Failed to check tagger status', e);
   }
 };
 
@@ -53,16 +38,15 @@ const downloadModel = async () => {
   try {
     await api.post('/tagger/download');
     modelStatus.value.downloading = true;
-    toast.add({severity: 'info', summary: 'Download Started', detail: 'Downloading WD14 model...', life: 3000});
-  } catch (e) {
-  }
+    toast.add({ severity: 'info', summary: 'Download Started', detail: 'Downloading WD14 model...', life: 3000 });
+  } catch (e) {}
 };
 
 const startTagging = async (single = false) => {
   const path = single ? store.selectedFile : store.lastFolderPath;
 
   if (!path) {
-    toast.add({severity: 'warn', summary: 'No Target', detail: 'Please select a file or folder.', life: 3000});
+    toast.add({ severity: 'warn', summary: 'No Target', detail: 'Please select a file or folder.', life: 3000 });
     return;
   }
 
@@ -75,18 +59,18 @@ const startTagging = async (single = false) => {
       }
     });
 
-    toast.add({severity: 'success', summary: 'Started', detail: res.data, life: 3000});
+    toast.add({ severity: 'success', summary: 'Started', detail: res.data, life: 3000 });
 
     if (single) {
       setTimeout(async () => {
         await store.fetchMetadata(path);
         isTagging.value = false;
-        toast.add({severity: 'success', summary: 'Done', detail: 'AI Tags updated', life: 2000});
+        toast.add({ severity: 'success', summary: 'Done', detail: 'AI Tags updated', life: 2000 });
       }, 3000);
     } else {
       setTimeout(() => {
         isTagging.value = false;
-        toast.add({severity: 'success', summary: 'Completed', detail: 'Folder tagging finished', life: 3000});
+        toast.add({ severity: 'success', summary: 'Completed', detail: 'Folder tagging finished', life: 3000 });
       }, 8000);
     }
   } catch (e) {
@@ -105,72 +89,136 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="tagger-sidebar-glass h-full flex flex-column p-3" style="width: 380px; min-width: 380px;">
-    <div class="text-gradient font-bold text-xl mb-4 text-center">AI Auto-Tagger</div>
+  <aside class="tagger-sidebar-ds h-full flex flex-column p-4" style="width: 380px; min-width: 380px;">
+    <div class="tagger-title-ds mb-4 text-center">AI Auto-Tagger</div>
 
-    <div v-if="!modelStatus.ready"
-         class="flex-grow-1 flex flex-column align-items-center justify-content-center text-center gap-4">
-      <i class="pi pi-cloud-download text-5xl text-primary"></i>
-      <h2 class="text-lg font-bold text-white">Model Required</h2>
-      <p class="text-sm text-gray-400">The WD14 ONNX model (~300MB) is needed.</p>
+    <div
+      v-if="!modelStatus.ready"
+      class="flex-grow-1 flex flex-column align-items-center justify-content-center text-center gap-4"
+    >
+      <div class="cloud-icon-box">
+        <CloudDownload :size="48" class="text-accent" />
+      </div>
+      <h2 class="text-lg font-bold text-white m-0">Model Required</h2>
+      <p class="text-sm text-secondary m-0">The WD14 ONNX model (~300MB) is needed for automatic image tagging.</p>
 
-      <div v-if="modelStatus.downloading" class="w-full px-4">
-        <ProgressBar :value="modelStatus.progress" class="h-1rem mb-2"></ProgressBar>
-        <span class="text-xs text-gray-400">Downloading... {{ modelStatus.progress }}%</span>
+      <div v-if="modelStatus.downloading" class="w-full px-3">
+        <LProgressBar :value="modelStatus.progress" />
+        <span class="text-xs text-secondary mt-2 block">Downloading model... {{ modelStatus.progress }}%</span>
       </div>
 
-      <Button v-else label="Download Model" icon="pi pi-download" @click="downloadModel" class="p-button-sm"/>
+      <LButton
+        v-else
+        variant="primary"
+        size="md"
+        @click="downloadModel"
+      >
+        <template #icon><Download :size="16" /></template>
+        Download Model
+      </LButton>
     </div>
 
     <div v-else class="flex flex-column gap-5">
       <div>
-        <label class="block text-xs text-500 font-bold mb-3 uppercase tracking-wider">Confidence Threshold: {{
-            threshold
-          }}%</label>
-        <Slider v-model:modelValue="threshold" :min="10" :max="90"/>
+        <div class="flex justify-content-between align-items-center mb-2">
+          <span class="section-label-ds">Confidence Threshold</span>
+          <span class="value-badge-ds">{{ threshold }}%</span>
+        </div>
+        <LSlider v-model="threshold" :min="10" :max="90" />
       </div>
 
       <div class="flex flex-column gap-3">
-        <label class="block text-xs text-500 font-bold uppercase tracking-wider">Actions</label>
-        <Button label="Tag Current Image" icon="pi pi-tag"
-                @click="startTagging(true)" :loading="isTagging" :disabled="!store.selectedFile"/>
+        <span class="section-label-ds">Actions</span>
+        <LButton
+          variant="primary"
+          size="md"
+          :disabled="!store.selectedFile || isTagging"
+          @click="startTagging(true)"
+        >
+          <template #icon><Tag :size="16" /></template>
+          Tag Current Image
+        </LButton>
 
-        <Button label="Tag Entire Folder" icon="pi pi-tags" class="p-button-outlined"
-                @click="startTagging(false)" :loading="isTagging" :disabled="!store.lastFolderPath"/>
+        <LButton
+          variant="secondary"
+          size="md"
+          :disabled="!store.lastFolderPath || isTagging"
+          @click="startTagging(false)"
+        >
+          <template #icon><Tags :size="16" /></template>
+          Tag Entire Folder
+        </LButton>
       </div>
 
-      <div class="mt-4 p-3 glass-box border-round">
-        <div class="text-xs text-500 font-bold mb-2 uppercase">Current Target</div>
-        <div class="text-sm text-white text-overflow-ellipsis overflow-hidden white-space-nowrap">
-          <i class="pi pi-folder mr-1 text-primary"></i>
-          {{ store.lastFolderPath || 'None' }}
+      <div class="mt-4 p-3 ds-card">
+        <div class="section-label-ds mb-2">Current Target</div>
+        <div class="target-path-text flex align-items-center gap-2 text-sm text-white">
+          <Folder :size="16" class="text-accent" />
+          <span class="text-overflow-ellipsis overflow-hidden white-space-nowrap">
+            {{ store.lastFolderPath || 'None' }}
+          </span>
         </div>
       </div>
     </div>
-  </div>
+  </aside>
 </template>
 
 <style scoped>
-.tagger-sidebar-glass {
-  background: var(--bg-sidebar-left);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--border-light);
-  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.3);
+.tagger-sidebar-ds {
+  background: var(--color-surface-1, #14151B);
+  border-left: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));
 }
 
-.text-gradient {
-  background: var(--grad-text);
+.tagger-title-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-brand-text, linear-gradient(90deg, #4FD8D0, #9B7EF5));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.glass-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
+.cloud-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.text-500 {
-  color: var(--text-secondary) !important;
+.text-accent {
+  color: var(--color-accent-primary, #4FD8D0);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary, #9294A3);
+}
+
+.section-label-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #9294A3);
+}
+
+.value-badge-ds {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 12px;
+  color: var(--color-accent-primary, #4FD8D0);
+  font-weight: 600;
+}
+
+.ds-card {
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
 }
 </style>

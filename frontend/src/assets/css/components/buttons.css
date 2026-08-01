@@ -1,123 +1,46 @@
 /**
- * Button Styles
- * Description: Navigation and specialized window control buttons.
+ * Button Styles - Latent Design System Alignment
  */
 
-/* --- Navigation Buttons --- */
+/* --- Navigation & Toolbar Toggle Buttons --- */
 .nav-btn {
-    color: var(--text-secondary) !important;
-    border-radius: 8px;
+    color: var(--color-text-secondary, #9294A3) !important;
+    border-radius: var(--radius-md, 8px) !important;
     position: relative !important;
     z-index: 1 !important;
-    background: transparent !important;
-    overflow: visible !important;
-    border: 1px solid transparent;
-    margin: 4px !important;
-}
-
-.nav-btn::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: var(--grad-hover);
-    border-radius: 9px;
-    z-index: -2;
-    opacity: 0;
-    filter: blur(4px);
-    transition: opacity 0.3s ease;
-}
-
-.nav-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: transparent;
-    border-radius: 8px;
-    z-index: -1;
-    transition: background 0.3s ease;
+    background: var(--color-surface-2, #23252F) !important;
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06)) !important;
+    transition: all var(--duration-fast, 120ms) var(--ease-standard) !important;
 }
 
 .nav-btn:hover {
-    color: var(--text-primary) !important;
-    transform: translateY(-1px);
-}
-
-.nav-btn:hover::before {
-    opacity: 0.8;
-}
-
-.nav-btn:hover::after {
-    background: var(--bg-btn-inner);
+    color: var(--color-text-primary, #F2F3F7) !important;
+    border-color: var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+    background: var(--color-surface-3, #2E303E) !important;
 }
 
 /* --- Active Navigation State --- */
 .nav-btn.active-nav-btn {
-    color: transparent !important;
-}
-
-.nav-btn.active-nav-btn::before {
-    opacity: 0.8;
-}
-
-.nav-btn.active-nav-btn::after {
-    background: var(--bg-btn-inner);
+    background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12)) !important;
+    color: var(--color-accent-primary, #4FD8D0) !important;
+    border-color: rgba(79, 216, 208, 0.3) !important;
 }
 
 .nav-btn.active-nav-btn .p-button-label,
 .nav-btn.active-nav-btn .p-button-icon {
-    background: var(--grad-text);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent !important;
+    color: var(--color-accent-primary, #4FD8D0) !important;
+    -webkit-text-fill-color: var(--color-accent-primary, #4FD8D0) !important;
     font-weight: 700;
 }
 
 /* --- Window Control Buttons --- */
 .window-close-btn {
-    position: relative !important;
-    z-index: 1 !important;
     background: transparent !important;
-    overflow: visible !important;
-}
-
-.window-close-btn::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: var(--status-danger);
-    border-radius: 9px;
-    z-index: -2;
-    opacity: 0;
-    filter: blur(4px);
-    transition: opacity 0.3s ease;
-}
-
-.window-close-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: transparent;
-    border-radius: 8px;
-    z-index: -1;
-    transition: background 0.3s ease;
+    color: var(--color-text-secondary, #9294A3) !important;
+    transition: all var(--duration-fast, 120ms) var(--ease-standard) !important;
 }
 
 .window-close-btn:hover {
-    color: var(--text-primary) !important;
-    transform: translateY(-1px);
-    box-shadow: none !important;
-    background: transparent !important;
-}
-
-.window-close-btn:hover::before {
-    opacity: 0.8;
-}
-
-.window-close-btn:hover::after {
-    background: var(--bg-btn-inner);
-}
-
-.window-close-btn:hover .p-button-icon {
-    color: var(--text-primary) !important;
+    background: #E5484D !important;
+    color: #FFFFFF !important;
 }
