@@ -224,6 +224,63 @@ export const useBrowserStore = defineStore('browser', {
             this.navRefreshKey++;
         },
 
+        async openDataFolder() {
+            try {
+                await api.post('/system/open-data-folder');
+            } catch (e) {
+                console.error('Failed to open data folder', e);
+            }
+        },
+
+        async reIndexAll() {
+            try {
+                await api.post('/system/re-index-all');
+            } catch (e) {
+                console.error('Failed to re-index all', e);
+            }
+        },
+
+        async clearAiTags() {
+            try {
+                await api.post('/system/clear-ai-tags');
+            } catch (e) {
+                console.error('Failed to clear AI tags', e);
+            }
+        },
+
+        async clearDatabase() {
+            try {
+                await api.post('/system/clear-database');
+            } catch (e) {
+                console.error('Failed to clear database', e);
+            }
+        },
+
+        async clearThumbnails() {
+            try {
+                await api.post('/system/clear-thumbnails');
+            } catch (e) {
+                console.error('Failed to clear thumbnails', e);
+            }
+        },
+
+        async clearUnorganized() {
+            try {
+                await api.post('/system/clear-unorganized');
+            } catch (e) {
+                console.error('Failed to clear unorganized', e);
+            }
+        },
+
+        async clearTagModels() {
+            try {
+                await api.post('/tagger/clear-models');
+            } catch (e) {
+                console.error('Failed to clear tag models', e);
+            }
+        },
+
+
         async loadFilters() {
             try {
                 const res = await api.get('/images/filters');

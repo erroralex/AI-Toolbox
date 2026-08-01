@@ -31,7 +31,10 @@ import Textarea from 'primevue/textarea';
 import Chip from 'primevue/chip';
 import Divider from 'primevue/divider';
 import Dialog from 'primevue/dialog';
+import LButton from '@/components/ds/LButton.vue';
+import { Copy, X } from 'lucide-vue-next';
 import {useToast} from 'primevue/usetoast';
+
 
 const store = useBrowserStore();
 const toast = useToast();
@@ -286,15 +289,22 @@ const cancelEdit = () => {
       </div>
     </div>
 
-    <Dialog v-model:visible="isRawVisible" modal header="Raw Metadata" class="glass-dialog w-6"
-            :style="{ width: '50vw' }">
+    <Dialog v-model:visible="isRawVisible" modal header="Raw Metadata" style="width: 640px;">
       <pre class="raw-meta-pre">{{ formattedRawMeta }}</pre>
       <template #footer>
-        <Button label="Copy Text" icon="pi pi-copy" @click="copyToClipboard(formattedRawMeta)"
-                class="p-button-secondary"/>
-        <Button label="Close" icon="pi pi-times" @click="isRawVisible = false" autofocus/>
+        <div class="flex justify-content-end gap-2 pt-2">
+          <LButton variant="secondary" size="sm" @click="copyToClipboard(formattedRawMeta)">
+            <template #icon><Copy :size="14" /></template>
+            Copy Text
+          </LButton>
+          <LButton variant="primary" size="sm" @click="isRawVisible = false">
+            <template #icon><X :size="14" /></template>
+            Close
+          </LButton>
+        </div>
       </template>
     </Dialog>
+
   </div>
 </template>
 
@@ -416,5 +426,22 @@ const cancelEdit = () => {
   box-shadow: none !important;
   outline: none !important;
 }
+
+.raw-meta-pre {
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
+  padding: 16px;
+  color: var(--color-text-primary, #F2F3F7);
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
 </style>
+
 

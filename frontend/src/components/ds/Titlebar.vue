@@ -53,7 +53,8 @@ const close = () => {
     <div class="brand-section">
       <img :src="latentMark" alt="Latent Logo" class="brand-icon" />
       <span class="brand-title">{{ title }}</span>
-      <StatusPill :status="engineStatus" label="Spring Boot" />
+      <StatusPill :status="engineStatus" label="Backend" />
+
     </div>
 
     <div class="center-section no-drag">

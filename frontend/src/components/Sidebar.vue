@@ -89,6 +89,7 @@ const navigateToPath = (path) => {
       v-model:visible="showSettings"
       v-model:isRecursive="store.recursiveView"
       v-model:autoShowLatest="store.autoShowLatest"
+      @openDataFolder="store.openDataFolder"
       @clearDb="store.clearDatabase"
       @reindex="store.reIndexAll"
       @clearModels="store.clearTagModels"
@@ -96,6 +97,7 @@ const navigateToPath = (path) => {
       @clearUnorganized="store.clearUnorganized"
       @clearThumbnails="store.clearThumbnails"
     />
+
   </aside>
 </template>
 
