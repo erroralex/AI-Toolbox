@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import NavItem from '@/components/ds/NavItem.vue';
 import SettingsModal from '@/components/SettingsModal.vue';
+import FolderNav from '@/components/FolderNav.vue';
 import { useBrowserStore } from '@/stores/browser';
 import { Image as ImageIcon, Folder as FolderIcon, ArrowLeftRight, Shield, Zap, Copy, Settings as SettingsIcon } from 'lucide-vue-next';
 import alxLogoUrl from '@/assets/alx_logo.png';
@@ -55,7 +56,11 @@ const navigateToPath = (path) => {
         </NavItem>
       </div>
 
-      <div class="sidebar-spacer"></div>
+      <div class="divider-line-ds my-2"></div>
+
+      <div class="sidebar-tree-container">
+        <FolderNav />
+      </div>
 
       <div class="sidebar-group sidebar-bottom">
         <!-- Settings button is ABOVE the divider line -->
@@ -103,8 +108,8 @@ const navigateToPath = (path) => {
 
 <style scoped>
 .sidebar-ds {
-  width: 200px;
-  min-width: 200px;
+  width: 240px;
+  min-width: 240px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -114,6 +119,14 @@ const navigateToPath = (path) => {
   box-shadow: var(--shadow-card, 0 1px 2px rgba(0,0,0,0.4));
   z-index: 20;
 }
+
+.sidebar-tree-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  margin: 4px 0;
+}
+
 
 .sidebar-nav-ds {
   display: flex;

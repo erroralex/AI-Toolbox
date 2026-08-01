@@ -50,9 +50,23 @@ Built 15 reusable Vue 3 `<script setup>` SFC primitives wrapped with type-safe `
 - **Frameless Titlebar (`Titlebar.vue`)**:
   - Displays the official Latent vector mark (`latent-mark.svg`), app title ("Latent Library"), and `StatusPill` right next to the title text.
   - Exposes minimize, maximize, and close window controls via Electron IPC (`window.windowAPI` / `window.electronAPI`).
-- **Dual-Column Sidebar Architecture**:
-  - `Sidebar.vue` (200px fixed width): Primary sidemenu hosting view links (`Gallery`, `Collections`, `Comparator`, `Scrubber`, `Speed Sorter`, `Duplicates`), `Settings` button above the divider line, and developer credit logo link (`alx_logo.png`) below the divider line.
-  - `FolderNav.vue` (240px fixed width): Dedicated folder tree panel positioned to the right of `Sidebar.vue`, lazy-loading `Collections`, `Pinned`, and `This PC` (drives) with right-click context menu commands.
+- **Single Stacked Left Sidebar Layout**:
+  - `Sidebar.vue` (240px fixed width): Consolidated single left navigation sidebar hosting top view links (`Gallery`, `Collections`, `Comparator`, `Scrubber`, `Speed Sorter`, `Duplicates`), embedded scrollable `FolderNav` tree view (`Collections`, `Pinned`, `This PC`), `Settings` modal toggle button, and developer credit logo link (`alx_logo.png`).
+  - `FolderNav.vue`: Embedded directly inside `Sidebar.vue` between navigation links and settings with seamless transparent container background.
+- **LoRA Pills Formatting, Click-to-Copy & Tooltips**:
+  - `MetadataSidebar.vue` & `layout.css`: Formatted pill labels as full `<lora:name:weight>` tag strings (e.g. `<lora:ZxY_Krea2_v4:1>`).
+  - Added click-to-copy handler on `.lora-chip` that copies the full tag string (`<lora:Pony_QualityV4.0:1>`) to clipboard with a 1.5s info toast message.
+
+  - Added native `title="Click to copy LoRA name"` hover tooltip and `cursor: pointer` hover indicator.
+  - Removed legacy neon gradient glow pseudo-elements (`.lora-chip::before` / `::after`) in `layout.css`.
+  - Restyled `.lora-chip` using Latent Design System tokens: `#23252F` surface background, `#9B7EF5` accent text, `JetBrains Mono` font, 6px border radius, and soft subtle borders.
+- **Canvas Zoom-Out Double Background Fix**:
+  - `SingleImageViewer.vue`: Removed `shadow-8` from `<img class="absolute inset-0 z-1">` so the image DOM element scales down transparently when zooming out without leaving a floating dark box-shadow rectangle on the outer canvas.
+- **Single Native Splash Screen Experience**:
+  - `App.vue`: Removed duplicate inline Vue splash screen overlay (`loading-overlay-ds`). Electron's native splash window (`electron/splash.html`) handles startup during backend boot, and the app shell reveals instantly with no double splash flashing.
+
+
+
 - **Electron Native Splash Screen (`electron/splash.html`)**:
   - Restyled with `#0A0A0D` canvas background, ambient radial cyan/violet glow, official SVG mark, brand gradient text, and animated loading bar.
 

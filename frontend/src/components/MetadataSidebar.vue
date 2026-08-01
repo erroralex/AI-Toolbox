@@ -75,6 +75,40 @@ const loras = computed(() => {
   return [];
 });
 
+const formatLoraName = (loraStr) => {
+  if (!loraStr) return '';
+  let cleaned = loraStr.trim();
+  if (cleaned.startsWith('<lora:') && cleaned.endsWith('>')) {
+    return cleaned;
+  }
+  const parts = cleaned.split(':');
+  if (parts.length >= 2) {
+    return `<lora:${parts[0].trim()}:${parts[1].trim()}>`;
+  }
+  return `<lora:${cleaned}>`;
+};
+
+
+const getLoraCleanName = (loraStr) => {
+  if (!loraStr) return '';
+  let cleaned = loraStr.trim();
+  if (cleaned.startsWith('<lora:') && cleaned.endsWith('>')) {
+    cleaned = cleaned.substring(6, cleaned.length - 1);
+  }
+  const parts = cleaned.split(':');
+  return parts[0].trim();
+};
+
+const copyLoraName = (loraStr) => {
+  const fullTag = formatLoraName(loraStr);
+  if (!fullTag) return;
+  navigator.clipboard.writeText(fullTag);
+  toast.add({ severity: 'info', summary: 'Copied', detail: `Copied "${fullTag}" to clipboard`, life: 1500 });
+};
+
+
+
+
 const openFileLocation = async () => {
   if (!store.selectedFile) return;
   try {
@@ -251,7 +285,17 @@ const cancelEdit = () => {
         <div class="mb-3">
           <span class="block font-bold text-sm text-500 mb-2">LoRAs</span>
           <div class="flex flex-wrap gap-2">
-            <Chip v-for="lora in loras" :key="lora" :label="lora" class="lora-chip text-sm"/>
+            <span
+              v-for="lora in loras"
+              :key="lora"
+              class="lora-chip text-xs cursor-pointer"
+              title="Click to copy LoRA name"
+              @click="copyLoraName(lora)"
+            >
+              {{ formatLoraName(lora) }}
+            </span>
+
+
             <span v-if="loras.length === 0" class="text-500 text-sm italic">None</span>
           </div>
         </div>
@@ -373,16 +417,25 @@ const cancelEdit = () => {
   border-radius: var(--radius-md, 8px);
 }
 
-:deep(.lora-chip.p-chip),
 .lora-chip {
+  display: inline-flex;
+  align-items: center;
   background: var(--color-surface-2, #23252F) !important;
   color: var(--color-accent-secondary, #9B7EF5) !important;
-  border: 1px solid rgba(155, 126, 245, 0.35) !important;
-  border-radius: 999px !important;
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--radius-sm, 6px) !important;
   font-family: var(--font-mono, "JetBrains Mono", monospace) !important;
   font-size: 11px !important;
   padding: 4px 10px !important;
+  word-break: break-all;
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
+
+.lora-chip:hover {
+  background: rgba(155, 126, 245, 0.12) !important;
+  border-color: rgba(155, 126, 245, 0.35) !important;
+}
+
 
 :deep(.ai-tag-chip.p-chip),
 .ai-tag-chip {

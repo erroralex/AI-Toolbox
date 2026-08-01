@@ -270,7 +270,7 @@ onMounted(loadTree);
 </script>
 
 <template>
-  <aside class="folder-tree-panel h-full flex flex-column">
+  <div class="folder-tree-panel flex flex-column">
     <!-- Header -->
     <div class="tree-header p-3 flex align-items-center justify-content-between">
       <span class="tree-header-title">LIBRARY</span>
@@ -306,18 +306,18 @@ onMounted(loadTree);
     </div>
 
     <CustomContextMenu ref="cm" :model="menuModel" />
-  </aside>
+  </div>
 </template>
 
 <style scoped>
 .folder-tree-panel {
-  width: 240px;
-  min-width: 240px;
-  background: var(--color-surface-1, #14151B);
-  border-right: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
-  box-shadow: var(--shadow-card, 0 1px 2px rgba(0,0,0,0.4));
-  z-index: 15;
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border-right: none;
+  box-shadow: none;
 }
+
 
 .tree-header {
   border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
