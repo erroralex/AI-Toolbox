@@ -1,26 +1,21 @@
 <script setup>
 /**
  * @file CollectionsView.vue
- * @description A comprehensive management interface for image collections, supporting both static and dynamic (smart) groupings.
- *
- * This view allows users to browse their existing collections, create new ones, and configure
- * "Smart Collections" using a rich set of metadata filters (Model, Sampler, LoRA, Rating, and Prompt).
- * It features a responsive grid layout with stacked image previews for each collection and
- * provides a context menu for quick editing and removal.
+ * @description A comprehensive management interface for image collections, supporting static and dynamic (smart) groupings aligned with the Latent Design System.
  */
-import {ref, onMounted, computed, watch} from 'vue';
-import api, {authenticatedUrl} from '@/services/api';
-import {useBrowserStore} from '@/stores/browser';
-import Button from 'primevue/button';
+import { ref, onMounted, computed, watch } from 'vue';
+import api, { authenticatedUrl } from '@/services/api';
+import { useBrowserStore } from '@/stores/browser';
+import LButton from '@/components/ds/LButton.vue';
+import LSwitch from '@/components/ds/LSwitch.vue';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
-import InputSwitch from 'primevue/inputswitch';
 import Dropdown from 'primevue/dropdown';
 import MultiSelect from 'primevue/multiselect';
-import Chip from 'primevue/chip';
-import {useToast} from 'primevue/usetoast';
-import {useRouter} from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 import CustomContextMenu from '@/components/CustomContextMenu.vue';
+import { Plus, Folder, Bolt, Check, X, FolderOpen } from 'lucide-vue-next';
 
 const store = useBrowserStore();
 const router = useRouter();
@@ -44,13 +39,13 @@ const selectedSamplers = ref([]);
 const selectedRating = ref(null);
 
 const ratingOptions = [
-  {label: 'None (Unrated)', value: 0},
-  {label: 'Any Star (> 0)', value: 'Any Star Count'},
-  {label: '1 Star', value: 1},
-  {label: '2 Stars', value: 2},
-  {label: '3 Stars', value: 3},
-  {label: '4 Stars', value: 4},
-  {label: '5 Stars', value: 5}
+  { label: 'None (Unrated)', value: 0 },
+  { label: 'Any Star (> 0)', value: 'Any Star Count' },
+  { label: '1 Star', value: 1 },
+  { label: '2 Stars', value: 2 },
+  { label: '3 Stars', value: 3 },
+  { label: '4 Stars', value: 4 },
+  { label: '5 Stars', value: 5 }
 ];
 
 watch(() => store.navRefreshKey, () => {
@@ -87,7 +82,7 @@ const openCreateDialog = () => {
 
 const editCollection = async (name) => {
   try {
-    const response = await api.get(`/collections/${name}`);
+    const response = await api.get(`/collections/${encodeURIComponent(name)}`);
     const data = response.data;
 
     newCollectionName.value = data.name;
@@ -121,7 +116,7 @@ const editCollection = async (name) => {
 
 const saveCollection = async () => {
   if (!newCollectionName.value.trim()) {
-    toast.add({severity: 'warn', summary: 'Validation Error', detail: 'Collection name cannot be empty.', life: 3000});
+    toast.add({ severity: 'warn', summary: 'Validation Error', detail: 'Collection name cannot be empty.', life: 3000 });
     return;
   }
 
@@ -139,16 +134,17 @@ const saveCollection = async () => {
 
   try {
     if (isEditing.value) {
-      await api.put(`/collections/${originalCollectionName.value}`, collectionData);
-      toast.add({severity: 'success', summary: 'Success', detail: 'Collection updated!', life: 3000});
+      await api.put(`/collections/${encodeURIComponent(originalCollectionName.value)}`, collectionData);
+      toast.add({ severity: 'success', summary: 'Success', detail: 'Collection updated successfully.', life: 3000 });
     } else {
       await api.post('/collections', collectionData);
-      toast.add({severity: 'success', summary: 'Success', detail: 'Collection created!', life: 3000});
+      toast.add({ severity: 'success', summary: 'Success', detail: 'Collection created successfully.', life: 3000 });
     }
 
-    await fetchCollections();
-    store.refreshNav();
     displayCreateDialog.value = false;
+    resetForm();
+    await fetchCollections();
+    store.triggerNavRefresh();
   } catch (error) {
     console.error('Error saving collection:', error);
   }
@@ -163,8 +159,9 @@ const fetchCollections = async () => {
   }
 };
 
-const navigateToCollection = (collectionName) => {
-  router.push({path: '/', query: {collection: collectionName}});
+const navigateToCollection = (name) => {
+  store.setActiveCollection(name);
+  router.push('/');
 };
 
 const onCardContextMenu = (event, collectionName) => {
@@ -176,27 +173,27 @@ const onCardContextMenu = (event, collectionName) => {
       command: () => editCollection(collectionName)
     },
     {
-      label: 'Remove Collection',
+      label: 'Delete Collection',
       icon: 'pi pi-trash',
-      command: () => removeCollection(collectionName)
+      command: () => confirmDeleteCollection(collectionName)
     }
   ];
-  if (cm.value) {
-    cm.value.show(event);
-  }
+  if (cm.value) cm.value.show(event);
 };
 
-const removeCollection = async (name) => {
+const confirmDeleteCollection = async (name) => {
   try {
-    await api.delete(`/collections/${name}`);
-    toast.add({severity: 'success', summary: 'Success', detail: 'Collection removed', life: 2000});
-    store.refreshNav();
+    await api.delete(`/collections/${encodeURIComponent(name)}`);
+    toast.add({ severity: 'success', summary: 'Deleted', detail: `Collection "${name}" removed.`, life: 3000 });
+    await fetchCollections();
+    store.triggerNavRefresh();
   } catch (e) {
+    console.error('Failed to delete collection', e);
   }
 };
 
 const getThumbnailUrl = (path) => {
-  return authenticatedUrl(`/api/images/thumbnail?path=${encodeURIComponent(path)}`);
+  return authenticatedUrl(`/api/images/thumbnail?path=${encodeURIComponent(path)}&size=300`);
 };
 
 onMounted(() => {
@@ -204,7 +201,6 @@ onMounted(() => {
   if (store.availableModels.length === 0) {
     store.loadFilters();
   }
-
   if (store.collectionToEdit) {
     editCollection(store.collectionToEdit);
     store.collectionToEdit = null;
@@ -213,48 +209,50 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex h-full overflow-hidden collections-view-bg">
+  <div class="flex h-full overflow-hidden collections-container-ds">
     <div class="flex-grow-1 flex flex-column overflow-y-auto collections-view p-4">
       <div class="flex flex-column align-items-center mb-5">
-        <h1 class="text-4xl font-bold text-gradient mb-2">Collections</h1>
-        <Button label="Create New Collection" icon="pi pi-plus" @click="openCreateDialog"
-                class="p-button-raised p-button-rounded mt-2"/>
+        <h1 class="collections-title-ds mb-2">Collections</h1>
+        <LButton variant="primary" size="md" class="mt-2" @click="openCreateDialog">
+          <template #icon><Plus :size="16" /></template>
+          Create New Collection
+        </LButton>
       </div>
 
       <div class="grid px-4 justify-content-center">
         <div v-for="col in collections" :key="col.name" class="col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2 p-3">
-          <div class="collection-card-container cursor-pointer"
-               @click="navigateToCollection(col.name)"
-               @contextmenu.prevent.stop="onCardContextMenu($event, col.name)">
-
+          <div
+            class="collection-card-ds cursor-pointer"
+            @click="navigateToCollection(col.name)"
+            @contextmenu.prevent.stop="onCardContextMenu($event, col.name)"
+          >
             <div class="stack-container mb-3">
               <div v-if="col.previewPaths && col.previewPaths.length > 0" class="stack">
-                <div v-for="(path, index) in col.previewPaths.slice().reverse()" :key="path"
-                     class="stack-item"
-                     :style="{
-                       transform: `translate(${index * 8}px, ${index * -8}px) scale(${1 - (index * 0.04)})`,
-                       zIndex: 10 - index,
-                       opacity: 1 - (index * 0.15)
-                     }">
-                  <img :src="getThumbnailUrl(path)" alt="Preview" class="stack-img"/>
+                <div
+                  v-for="(path, index) in col.previewPaths.slice().reverse()"
+                  :key="path"
+                  class="stack-item"
+                  :style="{
+                    transform: `translate(${index * 8}px, ${index * -8}px) scale(${1 - (index * 0.04)})`,
+                    zIndex: 10 - index,
+                    opacity: 1 - (index * 0.15)
+                  }"
+                >
+                  <img :src="getThumbnailUrl(path)" alt="Preview" class="stack-img" />
                 </div>
               </div>
               <div v-else class="stack-empty flex align-items-center justify-content-center">
-                <i class="pi pi-folder-open text-4xl text-white-alpha-20"></i>
+                <FolderOpen :size="36" class="text-secondary opacity-50" />
               </div>
             </div>
 
             <div class="collection-info text-center">
-              <div
-                  class="text-base font-bold text-white mb-1 text-overflow-ellipsis overflow-hidden white-space-nowrap px-2"
-                  :title="col.name">
+              <div class="text-base font-bold text-white mb-1 text-overflow-ellipsis overflow-hidden white-space-nowrap px-2" :title="col.name">
                 {{ col.name }}
               </div>
-              <div class="flex align-items-center justify-content-center gap-2">
-                <i :class="col.isSmart ? 'pi pi-bolt text-primary' : 'pi pi-folder text-gray-500'"
-                   style="font-size: 0.7rem"></i>
-                <span class="text-xs uppercase tracking-wider font-semibold"
-                      :class="col.isSmart ? 'text-primary' : 'text-gray-500'">
+              <div class="flex align-items-center justify-content-center gap-1">
+                <component :is="col.isSmart ? Bolt : Folder" :size="12" :class="col.isSmart ? 'text-accent' : 'text-secondary'" />
+                <span class="text-xs uppercase tracking-wider font-semibold" :class="col.isSmart ? 'text-accent' : 'text-secondary'">
                   {{ col.isSmart ? 'Smart' : 'Static' }}
                 </span>
               </div>
@@ -263,99 +261,146 @@ onMounted(() => {
         </div>
       </div>
 
-      <Dialog :header="isEditing ? 'Edit Collection' : 'Create New Collection'" v-model:visible="displayCreateDialog"
-              :modal="true" :style="{ width: '60vw' }"
-              class="glass-dialog">
-        <div class="p-fluid">
-          <div class="p-field mb-4">
-            <label for="collectionName" class="text-white font-semibold block mb-2">Collection Name</label>
-            <InputText id="collectionName" v-model="newCollectionName" class="glass-input"
-                       placeholder="e.g. My Favorites"/>
+      <!-- Create / Edit Collection Dialog -->
+      <Dialog
+        :header="isEditing ? 'Edit Collection' : 'Create New Collection'"
+        v-model:visible="displayCreateDialog"
+        :modal="true"
+        :style="{ width: '560px' }"
+        class="ds-modal-wrapper"
+      >
+        <div class="flex flex-column gap-4 py-2">
+          <div>
+            <label for="collectionName" class="field-label-ds block mb-2">Collection Name</label>
+            <InputText
+              id="collectionName"
+              v-model="newCollectionName"
+              class="w-full ds-input"
+              placeholder="e.g. Favorite Portrayals"
+            />
           </div>
 
-          <div class="p-field-checkbox mb-2 flex align-items-center">
-            <InputSwitch id="isSmartCollection" v-model="isSmartCollection" class="dynamic-toggle"/>
-            <label for="isSmartCollection" class="ml-2 font-semibold transition-colors transition-duration-200"
-                   :class="isSmartCollection ? 'text-primary' : 'text-white'">
-              Dynamic Auto-Population
-            </label>
+          <div>
+            <div class="flex align-items-center gap-3">
+              <LSwitch id="isSmartCollection" v-model="isSmartCollection" />
+              <label for="isSmartCollection" class="font-semibold text-sm cursor-pointer select-none" :class="isSmartCollection ? 'text-accent' : 'text-white'">
+                Dynamic Auto-Population
+              </label>
+            </div>
+            <p class="text-xs text-secondary mt-2 mb-0">
+              When enabled, this collection automatically includes images matching the smart filters below.
+            </p>
           </div>
-          <p class="text-xs text-gray-400 mb-4 ml-7">
-            When enabled, this collection will automatically include images matching the filters below.
-          </p>
 
-          <div v-if="isSmartCollection" class="mt-4 grid animation-fade-in">
-            <div class="col-12">
-              <h3 class="text-lg font-semibold mb-3 text-white">Smart Filters</h3>
-              <div class="grid formgrid">
-                <div class="field col-12 md:col-6">
-                  <label class="font-semibold text-white">Models</label>
-                  <MultiSelect v-model="selectedModels" :options="store.availableModels"
-                               placeholder="Select Models" class="w-full mt-2"
-                               :scrollHeight="'40vh'" @before-show="refreshFilters"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                  <label class="font-semibold text-white">Samplers</label>
-                  <MultiSelect v-model="selectedSamplers" :options="store.availableSamplers"
-                               placeholder="Select Samplers" class="w-full mt-2"
-                               :scrollHeight="'40vh'" @before-show="refreshFilters"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                  <label class="font-semibold text-white">LoRAs</label>
-                  <MultiSelect v-model="selectedLoras" :options="store.availableLoras"
-                               placeholder="Select LoRAs" class="w-full mt-2"
-                               :scrollHeight="'40vh'" @before-show="refreshFilters"/>
-                </div>
-                <div class="field col-12 md:col-6">
-                  <label class="font-semibold text-white">Rating</label>
-                  <Dropdown v-model="selectedRating" :options="ratingOptions" optionLabel="label" optionValue="value"
-                            placeholder="Select Rating" class="w-full mt-2"
-                            :scrollHeight="'40vh'"/>
-                </div>
-                <div class="field col-12">
-                  <label for="prompt" class="text-white font-semibold">Prompt contains</label>
-                  <InputText id="prompt" v-model="prompt" class="glass-input mt-2"
-                             placeholder="e.g. portrait, 8k, masterpiece"/>
-                </div>
+          <div v-if="isSmartCollection" class="flex flex-column gap-3 pt-2 border-top-1 border-white-alpha-10">
+            <span class="section-title-ds">Smart Filters</span>
+
+            <div class="grid grid-nogutter gap-3">
+              <div class="col-12 md:col-6">
+                <label class="field-label-ds block mb-1">Models</label>
+                <MultiSelect
+                  v-model="selectedModels"
+                  :options="store.availableModels"
+                  placeholder="Select Models"
+                  class="w-full ds-input"
+                  :scrollHeight="'30vh'"
+                  @before-show="refreshFilters"
+                />
+              </div>
+
+              <div class="col-12 md:col-6">
+                <label class="field-label-ds block mb-1">Samplers</label>
+                <MultiSelect
+                  v-model="selectedSamplers"
+                  :options="store.availableSamplers"
+                  placeholder="Select Samplers"
+                  class="w-full ds-input"
+                  :scrollHeight="'30vh'"
+                  @before-show="refreshFilters"
+                />
+              </div>
+
+              <div class="col-12 md:col-6">
+                <label class="field-label-ds block mb-1">LoRAs</label>
+                <MultiSelect
+                  v-model="selectedLoras"
+                  :options="store.availableLoras"
+                  placeholder="Select LoRAs"
+                  class="w-full ds-input"
+                  :scrollHeight="'30vh'"
+                  @before-show="refreshFilters"
+                />
+              </div>
+
+              <div class="col-12 md:col-6">
+                <label class="field-label-ds block mb-1">Rating</label>
+                <Dropdown
+                  v-model="selectedRating"
+                  :options="ratingOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select Rating"
+                  class="w-full ds-input"
+                  :scrollHeight="'30vh'"
+                />
+              </div>
+
+              <div class="col-12">
+                <label for="prompt" class="field-label-ds block mb-1">Prompt Contains</label>
+                <InputText
+                  id="prompt"
+                  v-model="prompt"
+                  class="w-full ds-input"
+                  placeholder="e.g. portrait, 8k, masterpiece"
+                />
               </div>
             </div>
           </div>
         </div>
+
         <template #footer>
-          <Button label="Cancel" icon="pi pi-times" @click="displayCreateDialog = false" class="p-button-text"/>
-          <Button :label="isEditing ? 'Save Changes' : 'Create Collection'" icon="pi pi-check" @click="saveCollection"/>
+          <div class="flex justify-content-end gap-2 pt-2">
+            <LButton variant="secondary" size="sm" @click="displayCreateDialog = false">
+              <template #icon><X :size="14" /></template>
+              Cancel
+            </LButton>
+            <LButton variant="primary" size="sm" @click="saveCollection">
+              <template #icon><Check :size="14" /></template>
+              {{ isEditing ? 'Save Changes' : 'Create Collection' }}
+            </LButton>
+          </div>
         </template>
       </Dialog>
 
-      <CustomContextMenu ref="cm" :model="menuModel"/>
+      <CustomContextMenu ref="cm" :model="menuModel" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.collections-view-bg {
-  background: transparent;
+.collections-container-ds {
+  background: var(--color-bg-canvas, #0A0A0D);
 }
 
-.collections-view {
-  min-height: 100vh;
-}
-
-.text-gradient {
-  background: var(--grad-text);
+.collections-title-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.collection-card-container {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.collection-card-ds {
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
   max-width: 220px;
   margin: 0 auto;
 }
 
-.collection-card-container:hover {
-  transform: translateY(-8px);
+.collection-card-ds:hover {
+  transform: translateY(-6px);
 }
 
 .stack-container {
@@ -376,17 +421,16 @@ onMounted(() => {
 .stack-item {
   position: absolute;
   inset: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   overflow: hidden;
-  border: 2px solid var(--border-light);
-  background: var(--bg-card);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  transition: all 0.4s ease;
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10));
+  background: var(--color-surface-1, #14151B);
+  box-shadow: var(--shadow-card, 0 8px 20px rgba(0, 0, 0, 0.4));
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.collection-card-container:hover .stack-item {
-  border-color: var(--accent-primary);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+.collection-card-ds:hover .stack-item {
+  border-color: var(--color-accent-primary, #67E0D8);
 }
 
 .stack-img {
@@ -398,82 +442,45 @@ onMounted(() => {
 .stack-empty {
   width: 160px;
   height: 160px;
-  background: var(--bg-card);
-  border: 2px dashed var(--border-light);
-  border-radius: 8px;
+  background: var(--color-surface-1, #14151B);
+  border: 2px dashed var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
 }
 
-.glass-dialog .p-dialog-header,
-.glass-dialog .p-dialog-content,
-.glass-dialog .p-dialog-footer {
-  background: var(--bg-panel-opaque) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-input) !important;
+.field-label-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #9294A3);
 }
 
-.glass-dialog .p-dialog-header {
-  border-bottom: 1px solid var(--border-input);
+.section-title-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary, #F2F3F7);
 }
 
-.glass-input {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-  color: var(--text-primary) !important;
+.ds-input {
+  background: var(--color-surface-2, #23252F) !important;
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06)) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  font-family: var(--font-sans, Inter, sans-serif) !important;
+  font-size: 13px !important;
+}
+
+.text-accent {
+  color: var(--color-accent-primary, #67E0D8) !important;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary, #9294A3) !important;
 }
 
 .text-white {
-  color: var(--text-primary) !important;
-}
-
-.text-primary {
-  color: var(--accent-primary) !important;
-}
-
-.animation-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-:deep(.p-multiselect), :deep(.p-dropdown) {
-    background: var(--bg-input) !important;
-    border: 1px solid var(--border-input) !important;
-}
-
-:deep(.dynamic-toggle.p-inputswitch) {
-  width: 2.4rem !important;
-  height: 1.2rem !important;
-}
-
-:deep(.dynamic-toggle.p-inputswitch .p-inputswitch-slider) {
-  background-color: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-}
-
-:deep(.dynamic-toggle.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider) {
-  background-color: var(--accent-primary) !important;
-  border-color: var(--accent-primary) !important;
-}
-
-:deep(.dynamic-toggle.p-inputswitch .p-inputswitch-slider:before) {
-  background-color: var(--text-secondary) !important;
-  width: 0.8rem !important;
-  height: 0.8rem !important;
-  left: 0.2rem !important;
-  margin-top: -0.4rem !important;
-}
-
-:deep(.dynamic-toggle.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before) {
-  background-color: var(--bg-app) !important;
-  transform: translateX(1.2rem) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
 }
 </style>

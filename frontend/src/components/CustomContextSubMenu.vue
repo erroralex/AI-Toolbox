@@ -128,9 +128,9 @@ const execute = (item) => {
   transition: color var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.menu-item:hover .menu-icon,
-.menu-item:hover .menu-label,
-.menu-item:hover .submenu-arrow {
+.menu-item:hover > .menu-item-content > .menu-icon,
+.menu-item:hover > .menu-item-content > .menu-label,
+.menu-item:hover > .menu-item-content > .submenu-arrow {
   color: var(--color-accent-primary, #67E0D8) !important;
 }
 
@@ -140,5 +140,7 @@ const execute = (item) => {
   left: 100%;
   padding-left: 4px;
   z-index: 1000;
+  color: var(--color-text-primary, #F2F3F7);
 }
+
 </style>

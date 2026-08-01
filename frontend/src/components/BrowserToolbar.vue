@@ -28,6 +28,9 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Slider from 'primevue/slider';
 import Chip from 'primevue/chip';
+import LSlider from '@/components/ds/LSlider.vue';
+import { ZoomIn } from 'lucide-vue-next';
+
 import InputSwitch from 'primevue/inputswitch';
 import Dropdown from 'primevue/dropdown';
 import {useConfirm} from 'primevue/useconfirm';
@@ -110,10 +113,13 @@ onUnmounted(() => {
           </div>
 
           <div class="flex gap-2 align-items-center flex-wrap justify-content-center">
-            <div v-if="store.viewMode === 'gallery'" class="flex gap-3 align-items-center mr-3">
-              <i class="pi pi-search-plus text-xl text-500"></i>
-              <Slider v-model="store.cardSize" :min="100" :max="400" class="w-8rem"/>
+            <div v-if="store.viewMode === 'gallery'" class="flex gap-2 align-items-center mr-3">
+              <ZoomIn :size="16" class="text-secondary" />
+              <div style="width: 110px;">
+                <LSlider v-model="store.cardSize" :min="100" :max="400" />
+              </div>
             </div>
+
 
             <div class="flex gap-1 mr-2 align-items-center">
               <div class="flex align-items-center gap-1 mr-2 border-right-1 border-white-alpha-10 pr-2" v-if="store.lastFolderPath">

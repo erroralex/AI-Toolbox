@@ -15,7 +15,7 @@ const engineStatus = ref('online');
 
 const checkEngineHealth = async () => {
   try {
-    const res = await api.get('/system/health');
+    const res = await api.get('/system/version');
     if (res.status === 200) {
       engineStatus.value = 'online';
     } else {
@@ -25,6 +25,7 @@ const checkEngineHealth = async () => {
     engineStatus.value = 'offline';
   }
 };
+
 
 onMounted(() => {
   checkEngineHealth();
