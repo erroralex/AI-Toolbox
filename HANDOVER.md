@@ -150,6 +150,42 @@ use `--color-*` DS tokens with hardcoded fallbacks).
 Verified via `cd frontend && npm run build` (clean) and `cd backend && ./mvnw test`
 (153 tests, 0 failures).
 
+### 7. Nav-Tree Root Selection Fix & Cross-View Header Consistency
+
+- **`FolderNav.vue`**: the `Collections` / `Pinned` / `This PC` root nodes now carry
+  `selectable: false`. Previously clicking one of these group headers applied
+  PrimeVue's `p-highlight` selection background (visible accent tint) even though
+  `navigateToNode` already no-ops for `type: 'root'` — the row looked "selected" but
+  did nothing. `selectable: false` disables PrimeVue's click-to-select path entirely
+  for those nodes (verified directly against `primevue/tree` source —
+  `onNodeClick`/`handleSelectionWith(out)MetaKey` gate on `node.selectable !== false`),
+  so clicking a root row now only expands/collapses via the toggler, matching how a
+  tree section header should behave.
+- **Shared view header typography**: audited all tool views (Scrubber, Comparator,
+  Duplicate Detective, Collections, Speed Sorter) for visual consistency. Found the
+  "hero" title/subtitle pattern had drifted independently per-file — 28px in three
+  views but 24px in Duplicate Detective (fighting a stray PrimeFlex `text-3xl`
+  class), and Comparator's subtitle had no explicit font-size at all (fell back to
+  browser default instead of Scrub's deliberate 14px). Also found `.text-white`
+  reimplemented identically (as a PrimeFlex-white → DS-token override) in 7 separate
+  files.
+  - Extracted `.view-title-hero`, `.view-subtitle`, and a global `.text-white` into
+    `base.css` and pointed Scrub/Comparator/Collections/Duplicate Detective at them,
+    deleting the now-redundant local copies (net −45 lines).
+  - Speed Sorter's compact toolbar header was deliberately left alone — it's a
+    denser, keyboard-driven layout, not a page hero, so forcing the same treatment
+    there would hurt usability rather than help consistency.
+- **Verification**: `npm run build` clean, backend tests 153/153. Live-verified by
+  launching `electron/` standalone (`npm start`) and screenshotting the running app —
+  confirmed the Pinned/Test Suite nav-tree behavior visually (root row unhighlighted,
+  child row correctly highlighted) and that the window renders normally end-to-end.
+  Note for future dev-mode browser testing: the Vite proxy (`vite.config.js`) targets
+  a fixed `localhost:8080`, but the backend binds a random port per launch by design
+  (see `SecurityConfig`'s handshake token, normally supplied to the renderer via
+  Electron IPC) — plain-browser testing against `npm run dev` needs the backend
+  started with `--server.port=8080` and the handshake token manually injected, or use
+  the packaged Electron app instead.
+
 ---
 
 ## Verification & Build Commands
