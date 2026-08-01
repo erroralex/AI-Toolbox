@@ -33,7 +33,9 @@ import {useConfirm} from 'primevue/useconfirm';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
 import NavItem from '@/components/ds/NavItem.vue';
-import { Image as ImageIcon, Folder as FolderIcon, ArrowLeftRight, Shield, Zap, Copy } from 'lucide-vue-next';
+import SettingsModal from '@/components/SettingsModal.vue';
+import { Image as ImageIcon, Folder as FolderIcon, ArrowLeftRight, Shield, Zap, Copy, Settings as SettingsIcon } from 'lucide-vue-next';
+
 
 import logoDs from '@/assets/alx_logo.png';
 import logoNeon from '@/assets/alx_logo_neon.png';
@@ -605,8 +607,6 @@ onMounted(loadTree);
       <div class="flex align-items-center gap-1">
         <Button icon="pi pi-plus" class="p-button-text p-button-rounded p-button-sm text-white"
                 v-tooltip.bottom="'Pin New Folder'" @click="pinNewFolder"/>
-        <Button icon="pi pi-cog" class="p-button-text p-button-rounded p-button-sm text-white"
-                v-tooltip.bottom="'Open Settings'" @click="openSettings"/>
       </div>
     </div>
 
@@ -632,131 +632,43 @@ onMounted(loadTree);
       </Tree>
     </div>
 
-    <div class="p-3 mt-auto border-top-1 border-white-alpha-10 flex justify-content-center">
-      <a href="https://github.com/erroralex" target="_blank" rel="noopener noreferrer" title="Built by Alexander Nilsson">
-        <img :src="currentLogo" alt="ALX Logo" class="nav-logo">
-      </a>
+    <!-- Bottom Sidebar Group (Settings + Dev Logo) -->
+    <div class="sidebar-bottom-group border-top-1 border-white-alpha-10 p-2 flex flex-column gap-2 mt-auto">
+      <NavItem
+        label="Settings"
+        :active="showSettings"
+        @click="showSettings = !showSettings"
+      >
+        <template #icon>
+          <SettingsIcon :size="16" />
+        </template>
+      </NavItem>
+
+      <div class="flex justify-content-center pt-1">
+        <a href="https://github.com/erroralex" target="_blank" rel="noopener noreferrer" title="Built by Alexander Nilsson">
+          <img :src="currentLogo" alt="ALX Logo" class="nav-logo">
+        </a>
+      </div>
     </div>
 
     <CustomContextMenu ref="cm" :model="menuModel"/>
 
-
-    <Dialog v-model:visible="showSettings" modal header="Settings" :style="{ width: '50vw' }" class="glass-dialog">
-      <div class="flex flex-column gap-4">
-        <div>
-          <h3 class="text-lg font-semibold mb-2 text-white">Appearance</h3>
-          <div class="flex align-items-center gap-3">
-            <label class="text-white">Theme</label>
-            <Dropdown v-model="currentTheme" :options="themeOptions" optionLabel="label" optionValue="value"
-                      class="w-full md:w-14rem glass-input" @change="changeTheme"/>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="text-lg font-semibold mb-2 text-white">Data Management</h3>
-          <div class="flex flex-column gap-3">
-            <div class="flex flex-wrap gap-2">
-              <Button label="Open Data Folder" icon="pi pi-folder-open" class="p-button-outlined"
-                      v-tooltip.bottom="'Open Application Data Directory'" @click="openDataFolder"/>
-              <Button label="Clear Entire Database" icon="pi pi-database" class="p-button-danger p-button-outlined"
-                      v-tooltip.bottom="'Wipe all indexed data and settings'" @click="clearDatabase"/>
-              <Button label="Full Re-index" icon="pi pi-refresh" class="p-button-warning p-button-outlined"
-                      v-tooltip.bottom="'Clear and re-scan library'" @click="reIndexAll"/>
-              <Button label="Delete Tag Models" icon="pi pi-tags" class="p-button-danger p-button-outlined"
-                      v-tooltip.bottom="'Remove downloaded AI models'" @click="clearTagModels"/>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <Button label="Clear AI Tags" icon="pi pi-tag" class="p-button-danger p-button-outlined"
-                      v-tooltip.bottom="'Remove all auto-generated tags'" @click="clearAiTags"/>
-              <Button label="Clear Unorganized" icon="pi pi-trash" class="p-button-danger p-button-outlined"
-                      v-tooltip.bottom="'Remove images not in collections or rated'" @click="clearUnorganized"/>
-              <Button label="Clear Thumbnails" icon="pi pi-images" class="p-button-warning p-button-outlined"
-                      v-tooltip.bottom="'Delete all cached thumbnails'" @click="clearThumbnails"/>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="text-lg font-semibold mb-2 text-white">Custom Nodes</h3>
-          <p class="text-sm text-gray-400 mb-2">Define custom ComfyUI nodes to extract metadata from.</p>
-
-          <div class="grid">
-            <div class="col-6">
-              <label class="block text-xs font-bold text-gray-300 mb-2">Prompt Nodes (Text Input)</label>
-              <div class="flex gap-2 mb-2">
-                <InputText v-model="newPromptNode" placeholder="e.g. VNCCS_MultilineText" class="glass-input w-full p-inputtext-sm"/>
-                <Button icon="pi pi-plus" class="p-button-sm" @click="addCustomPromptNode"/>
-              </div>
-              <div class="glass-box p-2 border-round" style="height: 120px; overflow-y: auto;">
-                <div v-for="node in customPromptNodes" :key="node"
-                     class="flex justify-content-between align-items-center p-1 hover:surface-white-alpha-10 border-round">
-                  <span class="text-xs text-white">{{ node }}</span>
-                  <Button icon="pi pi-times" class="p-button-text p-button-danger p-button-sm w-2rem h-2rem"
-                          @click="removeCustomPromptNode(node)"/>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-6">
-              <label class="block text-xs font-bold text-gray-300 mb-2">LoRA Nodes (Stack Input)</label>
-              <div class="flex gap-2 mb-2">
-                <InputText v-model="newLoraNode" placeholder="e.g. VVVLoRAStackLoader" class="glass-input w-full p-inputtext-sm"/>
-                <Button icon="pi pi-plus" class="p-button-sm" @click="addCustomLoraNode"/>
-              </div>
-              <div class="glass-box p-2 border-round" style="height: 120px; overflow-y: auto;">
-                <div v-for="node in customLoraNodes" :key="node"
-                     class="flex justify-content-between align-items-center p-1 hover:surface-white-alpha-10 border-round">
-                  <span class="text-xs text-white">{{ node }}</span>
-                  <Button icon="pi pi-times" class="p-button-text p-button-danger p-button-sm w-2rem h-2rem"
-                          @click="removeCustomLoraNode(node)"/>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="text-lg font-semibold mb-2 text-white">Excluded Paths</h3>
-          <p class="text-sm text-gray-400 mb-2">Folders starting with these paths will be ignored by the indexer.</p>
-
-          <div class="flex gap-2 mb-3">
-            <div class="p-inputgroup flex-grow-1">
-              <InputText v-model="newExcludedPath" placeholder="Enter path to exclude..." class="glass-input"/>
-              <Button icon="pi pi-folder-open" v-tooltip.bottom="'Browse for folder'" @click="selectExcludedFolder"/>
-            </div>
-            <Button icon="pi pi-plus" v-tooltip.bottom="'Add to exclusion list'" @click="addExcludedPath"/>
-          </div>
-
-          <div class="glass-box p-2 border-round" style="max-height: 200px; overflow-y: auto;">
-            <div v-for="path in excludedPaths" :key="path"
-                 class="flex justify-content-between align-items-center p-2 hover:surface-white-alpha-10 border-round">
-              <span class="text-sm text-white">{{ path }}</span>
-              <Button icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
-                      v-tooltip.left="'Remove exclusion'" @click="removeExcludedPath(path)"/>
-            </div>
-            <div v-if="excludedPaths.length === 0" class="text-center text-gray-500 text-sm p-2">No excluded paths</div>
-          </div>
-        </div>
-
-        <div class="mt-2 pt-3 border-top-1 border-white-alpha-10 flex justify-content-between align-items-center">
-            <div class="flex flex-column">
-                <span class="text-xs text-gray-500 font-mono uppercase tracking-widest">Latent Library Desktop</span>
-                <span class="text-xs text-gray-500 font-mono">v{{ appVersion }}</span>
-            </div>
-            <div class="flex gap-2">
-                <img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors"
-                     alt="GitHub Sponsors" class="cursor-pointer h-2rem"
-                     @click="openLink('https://github.com/sponsors/erroralex')"/>
-                <img src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white"
-                     alt="Ko-fi" class="cursor-pointer h-2rem"
-                     @click="openLink('https://ko-fi.com/error_alex')"/>
-            </div>
-        </div>
-      </div>
-    </Dialog>
+    <!-- Latent Design System Settings Modal -->
+    <SettingsModal
+      v-model:visible="showSettings"
+      v-model:isRecursive="store.recursiveView"
+      v-model:autoShowLatest="store.autoShowLatest"
+      @clearDb="clearDatabase"
+      @reindex="reIndexAll"
+      @clearModels="clearTagModels"
+      @clearTags="clearAiTags"
+      @clearUnorganized="clearUnorganized"
+      @clearThumbnails="clearThumbnails"
+      @openDataFolder="openDataFolder"
+    />
   </aside>
 </template>
+
 
 
 <style scoped>

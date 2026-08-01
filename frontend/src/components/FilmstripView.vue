@@ -123,53 +123,33 @@ onUnmounted(() => {
 
 <style scoped>
 .filmstrip-glass {
-  background: var(--bg-filmstrip);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--border-light);
-  box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface-1, #14151B);
+  border-top: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));
 }
 
 .filmstrip-item {
-  opacity: 0.7;
-  border: 2px solid transparent;
-  background: rgba(255, 255, 255, 0.05);
+  opacity: 0.65;
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  background: var(--color-surface-2, #23252F);
   position: relative;
   z-index: 0;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-md, 8px);
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
 .filmstrip-item:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(0.95);
+  opacity: 0.95;
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.18));
+  transform: translateY(-1px);
 }
 
 .filmstrip-item.selected-item {
   opacity: 1;
-  background: transparent;
-  transform: scale(1.05);
+  border-color: var(--color-accent-primary, #4FD8D0);
+  box-shadow: var(--glow-primary, 0 0 0 3px rgba(79, 216, 208, 0.16));
+  transform: scale(1.04);
   z-index: 1;
-  border-color: transparent;
-}
-
-.filmstrip-item.selected-item::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: var(--grad-hover);
-  border-radius: inherit;
-  z-index: -2;
-  filter: blur(2px);
-}
-
-.filmstrip-item.selected-item::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg-filmstrip);
-  border-radius: inherit;
-  z-index: -1;
 }
 
 .transition-transform {
@@ -177,10 +157,11 @@ onUnmounted(() => {
 }
 
 .duration-500 {
-  transition-duration: 500ms;
+  transition-duration: 300ms;
 }
 
 .ease-in-out {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: var(--ease-standard, cubic-bezier(0.2, 0, 0, 1));
 }
 </style>
+
