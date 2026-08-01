@@ -186,6 +186,39 @@ Verified via `cd frontend && npm run build` (clean) and `cd backend && ./mvnw te
   started with `--server.port=8080` and the handshake token manually injected, or use
   the packaged Electron app instead.
 
+### 8. ScrubView Vertical Centering Fix (found from real screenshots)
+
+The horizontal-centering check in section 7 passed, but missed a real bug: unlike
+Comparator/Collections/Duplicate Detective (title pinned near the top via
+`mb-4`/`mb-5`, no `justify-content-center` on the outer flex container), `ScrubView`'s
+root element had `justify-content-center` on the *whole* content block (title +
+card), vertically centering the entire group mid-viewport instead of anchoring the
+title to the top like every sibling view. Full-window ShareX screenshots from the
+user made the mismatch obvious — title sat around y≈355px in a 1350px-tall window
+vs. y≈117px for Collections/Comparator.
+
+- **Fix**: `ScrubView.vue` root now matches the Comparator/Collections structure —
+  outer container is `flex flex-column h-full p-4 overflow-hidden` (no
+  `justify-content-center`), title wrapper is `flex flex-column align-items-center
+  mb-4 flex-shrink-0`, and the `LCard` drop-zone is wrapped in a new
+  `flex-grow-1 flex align-items-center justify-content-center` div so it still
+  centers vertically *within the remaining space* below the anchored title, mirroring
+  how Comparator centers its dropzones.
+- **Process note — stale JAR trap**: verifying this fix live initially gave a false
+  negative. Electron (standalone `npm start`, not via IntelliJ) spawns
+  `java -jar backend/target/backend.jar`, which bundles a *packaged snapshot* of
+  `frontend`'s build output taken at the JAR's last `mvn package`. Running
+  `cd frontend && npm run build` alone updates `backend/src/main/resources/static/`
+  on disk but does **not** repackage `backend/target/backend.jar` — so Electron kept
+  serving the pre-fix UI until `cd backend && ./mvnw clean package -DskipTests` was
+  run to rebuild the jar. Any time a frontend change needs to be checked in the
+  standalone Electron shell (as opposed to IntelliJ's "Full Stack Dev", which runs
+  `BackendApplication` directly from `target/classes` and reflects source changes
+  after a Maven build automatically), rebuild the backend jar first.
+- **Verification**: rebuilt frontend + backend jar, relaunched Electron, screenshotted
+  Scrubber and Comparator back-to-back in the same session — titles now align at the
+  identical y-position. Backend tests 153/153.
+
 ---
 
 ## Verification & Build Commands

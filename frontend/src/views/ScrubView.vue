@@ -96,64 +96,66 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="flex flex-column align-items-center justify-content-center h-full p-4 scrub-container-ds">
-    <div class="text-center mb-5">
+  <div class="flex flex-column h-full p-4 overflow-hidden scrub-container-ds">
+    <div class="flex flex-column align-items-center mb-4 flex-shrink-0">
       <h1 class="view-title-hero mb-2">Metadata Scrubber</h1>
       <p class="view-subtitle">Remove hidden metadata (EXIF, Prompts, Workflow) for total privacy.</p>
     </div>
 
-    <LCard class="w-full max-w-30rem p-4">
-      <div
-        v-if="!previewUrl"
-        class="drop-zone-ds flex flex-column align-items-center gap-4 py-5 cursor-pointer border-round"
-        :class="{ 'drop-zone-active': isDragging }"
-        @click="triggerFileInput"
-        @dragover.prevent
-        @dragenter.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-      >
-        <input
-          type="file"
-          ref="fileInput"
-          class="hidden"
-          accept="image/png, image/jpeg, image/webp"
-          @change="handleFileSelect"
-        />
+    <div class="flex-grow-1 flex align-items-center justify-content-center">
+      <LCard class="w-full max-w-30rem p-4">
+        <div
+          v-if="!previewUrl"
+          class="drop-zone-ds flex flex-column align-items-center gap-4 py-5 cursor-pointer border-round"
+          :class="{ 'drop-zone-active': isDragging }"
+          @click="triggerFileInput"
+          @dragover.prevent
+          @dragenter.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+        >
+          <input
+            type="file"
+            ref="fileInput"
+            class="hidden"
+            accept="image/png, image/jpeg, image/webp"
+            @change="handleFileSelect"
+          />
 
-        <div class="shield-box">
-          <Shield :size="40" class="text-accent" />
-        </div>
-        <div class="text-center pointer-events-none">
-          <div class="font-bold text-lg mb-1 text-white">Drop Image Here</div>
-          <div class="text-secondary text-sm">or click to browse</div>
-        </div>
-        <span class="text-xs text-secondary pointer-events-none">Supports PNG, JPG, WEBP</span>
-      </div>
-
-      <div v-else class="flex flex-column align-items-center gap-4">
-        <div class="relative border-round overflow-hidden preview-box" style="max-height: 280px;">
-          <img :src="previewUrl" class="block max-w-full h-auto" style="max-height: 280px; object-fit: contain;" alt="Preview" />
+          <div class="shield-box">
+            <Shield :size="40" class="text-accent" />
+          </div>
+          <div class="text-center pointer-events-none">
+            <div class="font-bold text-lg mb-1 text-white">Drop Image Here</div>
+            <div class="text-secondary text-sm">or click to browse</div>
+          </div>
+          <span class="text-xs text-secondary pointer-events-none">Supports PNG, JPG, WEBP</span>
         </div>
 
-        <div class="flex gap-3 w-full">
-          <LButton
-            variant="primary"
-            size="md"
-            class="flex-grow-1"
-            :disabled="isProcessing"
-            @click="scrubAndDownload"
-          >
-            <template #icon><Download :size="16" /></template>
-            Export Clean Copy
-          </LButton>
+        <div v-else class="flex flex-column align-items-center gap-4">
+          <div class="relative border-round overflow-hidden preview-box" style="max-height: 280px;">
+            <img :src="previewUrl" class="block max-w-full h-auto" style="max-height: 280px; object-fit: contain;" alt="Preview" />
+          </div>
 
-          <LIconButton title="Clear" @click="clear">
-            <X :size="16" />
-          </LIconButton>
+          <div class="flex gap-3 w-full">
+            <LButton
+              variant="primary"
+              size="md"
+              class="flex-grow-1"
+              :disabled="isProcessing"
+              @click="scrubAndDownload"
+            >
+              <template #icon><Download :size="16" /></template>
+              Export Clean Copy
+            </LButton>
+
+            <LIconButton title="Clear" @click="clear">
+              <X :size="16" />
+            </LIconButton>
+          </div>
         </div>
-      </div>
-    </LCard>
+      </LCard>
+    </div>
   </div>
 </template>
 
