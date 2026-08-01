@@ -25,4 +25,9 @@ frontend/data/
 .claude/skills/
 drop-in-brain-main/
 
+# Documentation & Design System Repositories
+docs/
+Latent-Design-System/
+
+
 
