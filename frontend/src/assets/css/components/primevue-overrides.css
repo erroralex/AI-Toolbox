@@ -198,21 +198,29 @@
 }
 
 .p-slider .p-slider-handle {
-    background: var(--color-text-primary, #F2F3F7) !important;
-    border: 2px solid var(--color-accent-primary, #67E0D8) !important;
+    background: #67E0D8 !important;
+    border: 2px solid #FFFFFF !important;
     width: 14px !important;
     height: 14px !important;
     margin-top: -4px !important;
     margin-left: -7px !important;
     border-radius: 50% !important;
-    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.5)) !important;
+    box-shadow: 0 0 6px rgba(103, 224, 216, 0.5) !important;
+    outline: none !important;
     transition: transform var(--duration-fast, 120ms) var(--ease-standard) !important;
+}
+
+.p-slider .p-slider-handle::before,
+.p-slider .p-slider-handle::after {
+    display: none !important;
+    content: none !important;
 }
 
 .p-slider .p-slider-handle:hover {
     transform: scale(1.2) !important;
-    background: #FFFFFF !important;
+    background: #4FD8D0 !important;
 }
+
 
 /* --- Dialogs & Modals --- */
 .p-dialog {

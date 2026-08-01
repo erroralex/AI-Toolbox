@@ -10,10 +10,11 @@ import LSlider from '@/components/ds/LSlider.vue';
 import LProgressBar from '@/components/ds/LProgressBar.vue';
 import { useToast } from 'primevue/usetoast';
 import { useBrowserStore } from '@/stores/browser';
-import { Download, Tag, Tags, Folder, CloudDownload } from 'lucide-vue-next';
+import { Download, Tag, Tags, Folder, CloudDownload, X } from 'lucide-vue-next';
 
 const store = useBrowserStore();
 const toast = useToast();
+
 
 const modelStatus = ref({
   ready: false,
@@ -90,7 +91,13 @@ onUnmounted(() => {
 
 <template>
   <aside class="tagger-sidebar-ds h-full flex flex-column p-4" style="width: 380px; min-width: 380px;">
-    <div class="tagger-title-ds mb-4 text-center">AI Auto-Tagger</div>
+    <div class="flex align-items-center justify-content-between mb-4">
+      <button class="icon-btn-ds" title="Close AI Auto-Tagger" @click="store.isTaggerOpen = false">
+        <X :size="16" />
+      </button>
+      <div class="tagger-title-ds flex-grow-1 text-center pr-4">AI Auto-Tagger</div>
+    </div>
+
 
     <div
       v-if="!modelStatus.ready"
@@ -221,4 +228,25 @@ onUnmounted(() => {
   border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   border-radius: var(--radius-md, 8px);
 }
+
+.icon-btn-ds {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary, #9294A3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
+}
+
+.icon-btn-ds:hover {
+  background: var(--color-surface-2, #23252F);
+  color: var(--color-text-primary, #F2F3F7);
+  border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+}
 </style>
+

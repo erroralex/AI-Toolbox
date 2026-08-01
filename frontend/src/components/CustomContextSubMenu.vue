@@ -1,17 +1,7 @@
 <script setup>
 /**
  * @file CustomContextSubMenu.vue
- * @description A recursive submenu component for the CustomContextMenu.
- *
- * This component handles the rendering of individual menu items, separators, and nested submenus.
- * It implements hover-based submenu triggering and ensures that commands are executed correctly
- * when an item is clicked.
- *
- * Key functionalities:
- * - Recursive Rendering: Can render infinitely nested menu structures by self-referencing.
- * - Hover Management: Tracks the active submenu index to show/hide nested lists dynamically.
- * - Command Execution: Triggers the `command` callback of menu items and emits an `execute` event to close the root menu.
- * - Conditional Visibility: Respects the `visible` and `disabled` properties of menu item objects.
+ * @description A recursive submenu component for the CustomContextMenu aligned with the Latent Design System.
  */
 import { ref } from 'vue';
 
@@ -48,12 +38,13 @@ const execute = (item) => {
     <template v-for="(item, index) in model" :key="index">
       <li v-if="item.separator" class="menu-separator"></li>
 
-      <li v-else-if="item.visible !== false"
-          class="menu-item"
-          :class="{ 'disabled': item.disabled, 'has-submenu': item.items }"
-          @click.stop="execute(item)"
-          @mouseenter="onMouseEnter(index)"
-          @mouseleave="onMouseLeave"
+      <li
+        v-else-if="item.visible !== false"
+        class="menu-item"
+        :class="{ 'disabled': item.disabled, 'has-submenu': item.items }"
+        @click.stop="execute(item)"
+        @mouseenter="onMouseEnter(index)"
+        @mouseleave="onMouseLeave"
       >
         <div class="menu-item-content">
           <span v-if="item.icon" :class="['menu-icon', item.icon]"></span>
@@ -78,10 +69,20 @@ const execute = (item) => {
   margin: 0;
 }
 
+.menu-separator {
+  height: 1px;
+  background: var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  margin: 4px 0;
+}
+
 .menu-item {
-  padding: 10px 16px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--color-text-primary, #F2F3F7);
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 13px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
   display: flex;
   align-items: center;
   position: relative;
@@ -89,12 +90,11 @@ const execute = (item) => {
 
 .menu-item:hover {
   background: var(--color-surface-2, #23252F);
-  color: var(--color-text-primary, #F2F3F7);
+  color: var(--color-accent-primary, #67E0D8);
 }
 
-
 .menu-item.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
   pointer-events: none;
 }
@@ -106,47 +106,39 @@ const execute = (item) => {
 }
 
 .menu-icon {
-  margin-right: 12px;
+  margin-right: 10px;
   font-size: 14px;
-  color: var(--accent-primary);
+  color: var(--color-text-primary, #F2F3F7);
   width: 16px;
   text-align: center;
-  transition: color 0.1s;
-}
-
-.menu-item:hover .menu-icon {
-  color: #000000;
+  transition: color var(--duration-fast, 120ms) var(--ease-standard);
 }
 
 .menu-label {
   flex-grow: 1;
   font-weight: 500;
+  color: var(--color-text-primary, #F2F3F7);
+  transition: color var(--duration-fast, 120ms) var(--ease-standard);
 }
 
 .submenu-arrow {
   font-size: 12px;
   margin-left: 10px;
+  color: var(--color-text-secondary, #9294A3);
+  transition: color var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.menu-separator {
-  height: 1px;
-  background: var(--border-input);
-  margin: 4px 0;
+.menu-item:hover .menu-icon,
+.menu-item:hover .menu-label,
+.menu-item:hover .submenu-arrow {
+  color: var(--color-accent-primary, #67E0D8) !important;
 }
 
 .submenu-wrapper {
   position: absolute;
+  top: -4px;
   left: 100%;
-  top: 0;
-  height: 100%;
-  padding-left: 10px;
-  margin-left: -5px;
-  z-index: 10;
-}
-
-.submenu {
-  position: relative;
-  left: 0;
-  top: -6px;
+  padding-left: 4px;
+  z-index: 1000;
 }
 </style>

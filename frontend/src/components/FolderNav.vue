@@ -392,8 +392,9 @@ onMounted(loadTree);
 
 :deep(.p-treenode-icon) {
   margin-right: 6px !important;
-  color: var(--color-accent-primary, #67E0D8) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
   font-size: 13px !important;
 }
+
 </style>
 
