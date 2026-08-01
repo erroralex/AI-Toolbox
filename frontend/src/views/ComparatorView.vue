@@ -98,8 +98,8 @@ const reset = () => {
 <template>
   <div class="comparator-view-ds h-full flex flex-column p-4 overflow-hidden">
     <div class="flex flex-column align-items-center mb-4 flex-shrink-0">
-      <h1 class="comp-title-ds m-0">Comparator</h1>
-      <p class="text-secondary mt-1 m-0">Compare images side-by-side by dropping them into the slots below.</p>
+      <h1 class="view-title-hero mb-2">Comparator</h1>
+      <p class="view-subtitle">Compare images side-by-side by dropping them into the slots below.</p>
     </div>
 
     <div v-if="imageA && imageB" class="flex-grow-1 flex gap-3 overflow-hidden">
@@ -171,17 +171,6 @@ const reset = () => {
   background: var(--color-bg-canvas, #0A0A0D);
 }
 
-.comp-title-ds {
-  font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 .drop-zone-ds {
   width: 300px;
   height: 300px;
@@ -197,13 +186,5 @@ const reset = () => {
   background: var(--color-surface-2, #23252F);
   border-color: var(--color-accent-primary, #67E0D8);
   transform: translateY(-4px);
-}
-
-.text-secondary {
-  color: var(--color-text-secondary, #9294A3);
-}
-
-.text-white {
-  color: var(--color-text-primary, #F2F3F7);
 }
 </style>

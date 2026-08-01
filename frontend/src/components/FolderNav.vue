@@ -79,7 +79,8 @@ const loadTree = async () => {
       icon: 'pi pi-list',
       children: colChildren,
       type: 'root',
-      leaf: false
+      leaf: false,
+      selectable: false
     });
   } catch (e) {
     console.error('Error loading collections', e);
@@ -104,7 +105,8 @@ const loadTree = async () => {
       icon: 'pi pi-bookmark',
       children: pinChildren,
       type: 'root',
-      leaf: false
+      leaf: false,
+      selectable: false
     });
   } catch (e) {
     console.error('Error loading pinned folders', e);
@@ -129,7 +131,8 @@ const loadTree = async () => {
       icon: 'pi pi-desktop',
       children: driveChildren,
       type: 'root',
-      leaf: false
+      leaf: false,
+      selectable: false
     });
   } catch (e) {
     console.error('Error loading drives', e);

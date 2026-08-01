@@ -212,7 +212,7 @@ onMounted(() => {
   <div class="flex h-full overflow-hidden collections-container-ds">
     <div class="flex-grow-1 flex flex-column overflow-y-auto collections-view p-4">
       <div class="flex flex-column align-items-center mb-5">
-        <h1 class="collections-title-ds mb-2">Collections</h1>
+        <h1 class="view-title-hero mb-2">Collections</h1>
         <LButton variant="primary" size="md" class="mt-2" @click="openCreateDialog">
           <template #icon><Plus :size="16" /></template>
           Create New Collection
@@ -380,17 +380,6 @@ onMounted(() => {
 <style scoped>
 .collections-container-ds {
   background: var(--color-bg-canvas, #0A0A0D);
-}
-
-.collections-title-ds {
-  font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .collection-card-ds {

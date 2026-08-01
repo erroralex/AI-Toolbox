@@ -146,7 +146,7 @@ onUnmounted(() => {
   <div class="duplicate-view-ds h-full flex flex-column p-4 overflow-hidden">
     <div class="flex justify-content-between align-items-center mb-4 flex-shrink-0">
       <div>
-        <h1 class="text-3xl font-bold m-0 mb-1 dupe-title-ds">Duplicate Detective</h1>
+        <h1 class="view-title-hero mb-1">Duplicate Detective</h1>
         <div class="flex align-items-center gap-3">
           <p class="text-secondary m-0" v-if="pairs.length > 0">
             Found {{ pairs.length }} potential duplicate pairs.
@@ -252,16 +252,6 @@ onUnmounted(() => {
   background: var(--color-bg-canvas, #0A0A0D);
 }
 
-.dupe-title-ds {
-  font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 24px;
-  font-weight: 800;
-  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 .missing-badge-ds {
   font-family: var(--font-mono, "JetBrains Mono", monospace);
   font-size: 11px;
@@ -278,9 +268,5 @@ onUnmounted(() => {
 
 .text-secondary {
   color: var(--color-text-secondary, #9294A3);
-}
-
-.text-white {
-  color: var(--color-text-primary, #F2F3F7);
 }
 </style>

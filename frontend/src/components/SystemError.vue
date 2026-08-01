@@ -50,10 +50,6 @@ const reload = () => {
   color: var(--color-danger, #F2665B) !important;
 }
 
-.text-white {
-  color: var(--color-text-primary, #F2F3F7);
-}
-
 .text-gray-400,
 .text-gray-300 {
   color: var(--color-text-secondary, #9294A3);

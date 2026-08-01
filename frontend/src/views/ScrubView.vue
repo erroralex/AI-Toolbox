@@ -98,8 +98,8 @@ const clear = () => {
 <template>
   <div class="flex flex-column align-items-center justify-content-center h-full p-4 scrub-container-ds">
     <div class="text-center mb-5">
-      <h1 class="scrub-title-ds mb-2">Metadata Scrubber</h1>
-      <p class="scrub-subtitle-ds">Remove hidden metadata (EXIF, Prompts, Workflow) for total privacy.</p>
+      <h1 class="view-title-hero mb-2">Metadata Scrubber</h1>
+      <p class="view-subtitle">Remove hidden metadata (EXIF, Prompts, Workflow) for total privacy.</p>
     </div>
 
     <LCard class="w-full max-w-30rem p-4">
@@ -160,23 +160,6 @@ const clear = () => {
 <style scoped>
 .scrub-container-ds {
   background: var(--color-bg-canvas, #0A0A0D);
-}
-
-.scrub-title-ds {
-  font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.scrub-subtitle-ds {
-  font-family: var(--font-sans, Inter, sans-serif);
-  font-size: 14px;
-  color: var(--color-text-secondary, #9294A3);
 }
 
 .shield-box {

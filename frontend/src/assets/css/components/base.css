@@ -39,6 +39,7 @@ body {
 .text-primary { color: var(--color-text-primary, #F2F3F7); }
 .text-secondary { color: var(--color-text-secondary, #9294A3); }
 .text-muted { color: var(--color-text-tertiary, #6F7180); }
+.text-white { color: var(--color-text-primary, #F2F3F7); }
 
 .text-gradient {
     background: var(--gradient-brand-text, linear-gradient(90deg, #4FD8D0, #9B7EF5));
@@ -46,6 +47,26 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 800;
+}
+
+/* --- Shared View Header (title + subtitle used by top-level tool views) --- */
+.view-title-hero {
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.view-subtitle {
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 14px;
+    color: var(--color-text-secondary, #9294A3);
+    margin: 0;
 }
 
 /* --- Glass Panels & Surfaces --- */

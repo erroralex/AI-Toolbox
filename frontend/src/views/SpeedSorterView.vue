@@ -312,8 +312,4 @@ onUnmounted(() => {
 .text-secondary {
   color: var(--color-text-secondary, #9294A3);
 }
-
-.text-white {
-  color: var(--color-text-primary, #F2F3F7);
-}
 </style>
