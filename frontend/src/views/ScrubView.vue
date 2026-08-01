@@ -1,34 +1,22 @@
 <script setup>
 /**
  * @file ScrubView.vue
- * @description A specialized utility view for stripping sensitive metadata from AI-generated images.
- *
- * This view provides a secure interface for users to upload images and generate "clean" versions.
- * It targets the removal of embedded generation parameters (prompts, seeds, workflow JSON) and
- * standard EXIF data to ensure privacy before sharing images publicly.
- *
- * Key functionalities:
- * - **Secure Upload:** Handles temporary image staging on the backend for processing.
- * - **Visual Preview:** Displays the uploaded image using an authenticated URL to confirm
- * selection before scrubbing.
- * - **Metadata Stripping:** Triggers a backend process that re-encodes the image without
- * metadata chunks.
- * - **Automated Download:** Facilitates the immediate download of the processed, clean
- * image file with its original filename preserved.
- * - **Drag-and-Drop:** Supports dragging files directly onto the upload area.
+ * @description A security and privacy utility for stripping sensitive metadata from image files aligned with the Latent Design System.
  */
-import {ref} from 'vue';
-import api, {authenticatedUrl} from '@/services/api';
-import Button from 'primevue/button';
-import Card from 'primevue/card';
-import {useToast} from 'primevue/usetoast';
+import { ref } from 'vue';
+import api from '@/services/api';
+import LButton from '@/components/ds/LButton.vue';
+import LCard from '@/components/ds/LCard.vue';
+import LIconButton from '@/components/ds/LIconButton.vue';
+import { useToast } from 'primevue/usetoast';
+import { Shield, Download, X, Upload } from 'lucide-vue-next';
 
 const toast = useToast();
+const fileInput = ref(null);
 const uploadedFile = ref(null);
 const previewUrl = ref(null);
 const isProcessing = ref(false);
 const isDragging = ref(false);
-const fileInput = ref(null);
 
 const triggerFileInput = () => {
   if (fileInput.value) fileInput.value.click();
@@ -36,28 +24,28 @@ const triggerFileInput = () => {
 
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
-  if (file) processUpload(file);
+  if (file) processSelectedFile(file);
 };
 
 const handleDrop = (event) => {
   isDragging.value = false;
   const file = event.dataTransfer.files[0];
-  if (file) processUpload(file);
+  if (file) processSelectedFile(file);
 };
 
-const processUpload = async (file) => {
+const processSelectedFile = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
   try {
-    const response = await api.post('/scrub/upload', formData);
-    uploadedFile.value = response.data;
-
-    previewUrl.value = authenticatedUrl(`/api/scrub/preview/${encodeURIComponent(uploadedFile.value)}`);
-
-    toast.add({severity: 'success', summary: 'Uploaded', detail: 'Image ready to scrub', life: 3000});
+    const res = await api.post('/scrub/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    uploadedFile.value = res.data.filename;
+    previewUrl.value = URL.createObjectURL(file);
+    toast.add({ severity: 'info', summary: 'File Uploaded', detail: 'Ready for metadata scrubbing', life: 2000 });
   } catch (error) {
-    console.error("Upload failed", error);
+    console.error('Upload failed', error);
   } finally {
     if (fileInput.value) fileInput.value.value = '';
   }
@@ -69,7 +57,7 @@ const scrubAndDownload = async () => {
 
   try {
     const response = await api.post('/scrub/process', null, {
-      params: {filename: uploadedFile.value},
+      params: { filename: uploadedFile.value },
       responseType: 'blob'
     });
 
@@ -92,9 +80,9 @@ const scrubAndDownload = async () => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    toast.add({severity: 'success', summary: 'Success', detail: 'Metadata scrubbed & downloaded', life: 3000});
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Metadata scrubbed & downloaded', life: 3000 });
   } catch (error) {
-    console.error("Scrubbing failed", error);
+    console.error('Scrubbing failed', error);
   } finally {
     isProcessing.value = false;
   }
@@ -108,91 +96,122 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="flex flex-column align-items-center justify-content-center h-full p-4 scrub-view-bg">
+  <div class="flex flex-column align-items-center justify-content-center h-full p-4 scrub-container-ds">
     <div class="text-center mb-5">
-      <h1 class="text-4xl font-bold text-gradient mb-2">Metadata Scrubber</h1>
-      <p class="text-gray-400">Remove hidden metadata (EXIF, Prompts, Workflow) for privacy.</p>
+      <h1 class="scrub-title-ds mb-2">Metadata Scrubber</h1>
+      <p class="scrub-subtitle-ds">Remove hidden metadata (EXIF, Prompts, Workflow) for total privacy.</p>
     </div>
 
-    <Card class="w-full max-w-30rem glass-panel">
-      <template #content>
-        <div v-if="!previewUrl"
-             class="drop-zone flex flex-column align-items-center gap-4 py-5 cursor-pointer transition-all transition-duration-300 relative border-round"
-             :class="{ 'drop-zone-active': isDragging }"
-             @click="triggerFileInput"
-             @dragover.prevent
-             @dragenter.prevent="isDragging = true"
-             @dragleave.prevent="isDragging = false"
-             @drop.prevent="handleDrop">
+    <LCard class="w-full max-w-30rem p-4">
+      <div
+        v-if="!previewUrl"
+        class="drop-zone-ds flex flex-column align-items-center gap-4 py-5 cursor-pointer border-round"
+        :class="{ 'drop-zone-active': isDragging }"
+        @click="triggerFileInput"
+        @dragover.prevent
+        @dragenter.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+      >
+        <input
+          type="file"
+          ref="fileInput"
+          class="hidden"
+          accept="image/png, image/jpeg, image/webp"
+          @change="handleFileSelect"
+        />
 
-          <input type="file" ref="fileInput" class="hidden" accept="image/png, image/jpeg, image/webp"
-                 @change="handleFileSelect"/>
+        <div class="shield-box">
+          <Shield :size="40" class="text-accent" />
+        </div>
+        <div class="text-center pointer-events-none">
+          <div class="font-bold text-lg mb-1 text-white">Drop Image Here</div>
+          <div class="text-secondary text-sm">or click to browse</div>
+        </div>
+        <span class="text-xs text-secondary pointer-events-none">Supports PNG, JPG, WEBP</span>
+      </div>
 
-          <i class="pi pi-shield text-6xl text-gradient opacity-80 pointer-events-none"></i>
-          <div class="text-center pointer-events-none">
-            <div class="font-bold text-xl mb-1 text-white">Drop Image Here</div>
-            <div class="text-gray-400 text-sm">or click to browse</div>
-          </div>
-          <span class="text-xs text-gray-500 mt-2 pointer-events-none">Supports PNG, JPG, WEBP</span>
+      <div v-else class="flex flex-column align-items-center gap-4">
+        <div class="relative border-round overflow-hidden preview-box" style="max-height: 280px;">
+          <img :src="previewUrl" class="block max-w-full h-auto" style="max-height: 280px; object-fit: contain;" alt="Preview" />
         </div>
 
-        <div v-else class="flex flex-column align-items-center gap-4">
-          <div class="relative border-round overflow-hidden shadow-4" style="max-height: 300px;">
-            <img :src="previewUrl" class="block max-w-full h-auto" style="max-height: 300px; object-fit: contain;"
-                 alt="Preview"/>
-          </div>
+        <div class="flex gap-3 w-full">
+          <LButton
+            variant="primary"
+            size="md"
+            class="flex-grow-1"
+            :disabled="isProcessing"
+            @click="scrubAndDownload"
+          >
+            <template #icon><Download :size="16" /></template>
+            Export Clean Copy
+          </LButton>
 
-          <div class="flex gap-2 w-full">
-            <Button label="Export Clean Copy" icon="pi pi-download"
-                    @click="scrubAndDownload" :loading="isProcessing"
-                    class="flex-grow-1"/>
-            <Button icon="pi pi-times" @click="clear"
-                    class="p-button-secondary p-button-outlined" v-tooltip="'Clear'"/>
-          </div>
+          <LIconButton title="Clear" @click="clear">
+            <X :size="16" />
+          </LIconButton>
         </div>
-      </template>
-    </Card>
+      </div>
+    </LCard>
   </div>
 </template>
 
 <style scoped>
-.scrub-view-bg {
-  background: transparent;
+.scrub-container-ds {
+  background: var(--color-bg-canvas, #0A0A0D);
 }
 
-.text-gradient {
-  background: var(--grad-text);
+.scrub-title-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.glass-panel {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-light) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  box-shadow: var(--shadow-panel) !important;
+.scrub-subtitle-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 14px;
+  color: var(--color-text-secondary, #9294A3);
 }
 
-:deep(.p-card-body) {
-  padding: 1.5rem;
+.shield-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.drop-zone {
-  background: var(--bg-input);
-  border: 2px dashed var(--accent-primary);
-  position: relative;
-  z-index: 1;
+.drop-zone-ds {
+  background: var(--color-surface-2, #23252F);
+  border: 2px dashed var(--color-border-default, rgba(255, 255, 255, 0.10));
+  border-radius: var(--radius-lg, 12px);
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.drop-zone:hover, .drop-zone-active {
-  background: var(--bg-card);
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+.drop-zone-ds:hover, .drop-zone-active {
+  background: var(--color-surface-3, #2E303E);
+  border-color: var(--color-accent-primary, #67E0D8);
 }
 
-.drop-zone-active {
-  box-shadow: 0 0 30px var(--accent-primary);
+.text-accent {
+  color: var(--color-accent-primary, #67E0D8);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary, #9294A3);
+}
+
+.preview-box {
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
 }
 </style>

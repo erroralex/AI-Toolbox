@@ -1,28 +1,15 @@
 <script setup>
 /**
  * @file ComparatorView.vue
- * @description A side-by-side image comparison tool featuring a draggable slider, synchronized zoom, and pan.
- *
- * This view allows users to perform detailed visual and technical inspections between two images.
- * It implements a drag-and-drop interface for loading local files and utilizes the
- * {@link ImageSplitViewer} for interactive comparison. It also integrates with the
- * backend to fetch and display metadata for images that are already part of the library.
- *
- * Key functionalities:
- * - **Drag-and-Drop:** Supports direct file drops into designated slots for quick loading.
- * - **Interactive Comparison:** Hosts the split-viewer component for pixel-perfect
- *   inspections with synchronized zoom and pan.
- * - **Metadata Integration:** Automatically attempts to retrieve generation parameters
- *   from the database for loaded images.
- * - **Memory Management:** Automatically revokes object URLs on unmount to prevent memory leaks.
- * - **Responsive UI:** Features animated drop zones with visual feedback during drag operations.
+ * @description A side-by-side image comparison tool featuring a draggable slider, synchronized zoom, and pan aligned with the Latent Design System.
  */
-import {ref, onUnmounted} from 'vue';
-import Button from 'primevue/button';
-import {useToast} from 'primevue/usetoast';
+import { ref, onUnmounted } from 'vue';
+import LButton from '@/components/ds/LButton.vue';
+import { useToast } from 'primevue/usetoast';
 import ImageSplitViewer from '@/components/ImageSplitViewer.vue';
 import ComparisonMetadataPanel from '@/components/ComparisonMetadataPanel.vue';
 import api from '@/services/api';
+import { Image as ImageIcon, RotateCcw } from 'lucide-vue-next';
 
 const toast = useToast();
 
@@ -36,6 +23,9 @@ const metaB = ref(null);
 const isDraggingOverA = ref(false);
 const isDraggingOverB = ref(false);
 
+const fileInputA = ref(null);
+const fileInputB = ref(null);
+
 onUnmounted(() => {
   if (imageA.value?.startsWith('blob:')) URL.revokeObjectURL(imageA.value);
   if (imageB.value?.startsWith('blob:')) URL.revokeObjectURL(imageB.value);
@@ -44,14 +34,10 @@ onUnmounted(() => {
 const fetchMetadata = async (path, target) => {
   if (!path) return;
   try {
-    const res = await api.get('/images/metadata', {params: {path}});
+    const res = await api.get('/images/metadata', { params: { path } });
     if (target === 'A') metaA.value = res.data;
     else metaB.value = res.data;
   } catch (e) {
-    console.error(`Failed to fetch metadata for ${target}`, e);
-    // Metadata fetch failure is non-critical, so we just clear the metadata
-    // and optionally log a warning or show a subtle toast if needed.
-    // For now, we'll just clear it to avoid stale data.
     if (target === 'A') metaA.value = null;
     else metaB.value = null;
   }
@@ -77,7 +63,7 @@ const processFile = (file, target) => {
     if (target === 'A') {
       if (imageA.value?.startsWith('blob:')) URL.revokeObjectURL(imageA.value);
       imageA.value = url;
-      pathA.value = file.path; // Note: file.path is non-standard and might only work in Electron/specific envs
+      pathA.value = file.path;
       fetchMetadata(file.path, 'A');
     } else {
       if (imageB.value?.startsWith('blob:')) URL.revokeObjectURL(imageB.value);
@@ -86,8 +72,7 @@ const processFile = (file, target) => {
       fetchMetadata(file.path, 'B');
     }
   } catch (e) {
-    console.error("Failed to process file", e);
-    toast.add({severity: 'error', summary: 'Error', detail: 'Failed to load image file', life: 3000});
+    console.error('Failed to process file', e);
   }
 };
 
@@ -111,67 +96,70 @@ const reset = () => {
 </script>
 
 <template>
-  <div class="comparator-view h-full flex flex-column p-4 overflow-hidden">
+  <div class="comparator-view-ds h-full flex flex-column p-4 overflow-hidden">
     <div class="flex flex-column align-items-center mb-4 flex-shrink-0">
-      <h1 class="text-4xl font-bold text-gradient m-0">Comparator</h1>
-      <p class="text-gray-400 mt-2 m-0">Compare images by dropping them into the slots below.</p>
+      <h1 class="comp-title-ds m-0">Comparator</h1>
+      <p class="text-secondary mt-1 m-0">Compare images side-by-side by dropping them into the slots below.</p>
     </div>
 
     <div v-if="imageA && imageB" class="flex-grow-1 flex gap-3 overflow-hidden">
-      <ComparisonMetadataPanel :metadata="metaA" :path="pathA" title="Image A"/>
+      <ComparisonMetadataPanel :metadata="metaA" :path="pathA" title="Image A" />
 
       <div class="flex-grow-1 flex flex-column overflow-hidden">
-        <ImageSplitViewer :imageA="imageA" :imageB="imageB"/>
-        <div class="flex justify-content-center mt-3">
-          <Button label="Reset / Clear" class="p-button-outlined" @click="reset"/>
+        <ImageSplitViewer :imageA="imageA" :imageB="imageB" />
+        <div class="flex justify-content-center mt-3 flex-shrink-0">
+          <LButton variant="secondary" size="md" @click="reset">
+            <template #icon><RotateCcw :size="16" /></template>
+            Reset / Clear
+          </LButton>
         </div>
       </div>
 
-      <ComparisonMetadataPanel :metadata="metaB" :path="pathB" title="Image B"/>
+      <ComparisonMetadataPanel :metadata="metaB" :path="pathB" title="Image B" />
     </div>
 
     <div v-else class="flex-grow-1 flex align-items-center justify-content-center gap-4">
+      <!-- Dropzone A -->
       <div
-          class="drop-zone p-4 flex flex-column align-items-center justify-content-center cursor-pointer transition-all transition-duration-300 relative border-round"
-          :class="{ 'drop-zone-active': isDraggingOverA }"
-          @click="$refs.fileInputA.click()"
-          @dragover.prevent
-          @dragenter="isDraggingOverA = true"
-          @dragleave="handleDragLeave($event, 'A')"
-          @drop.prevent="handleDrop($event, 'A')">
+        class="drop-zone-ds p-4 flex flex-column align-items-center justify-content-center cursor-pointer relative border-round"
+        :class="{ 'drop-zone-active': isDraggingOverA }"
+        @click="fileInputA.click()"
+        @dragover.prevent
+        @dragenter="isDraggingOverA = true"
+        @dragleave="handleDragLeave($event, 'A')"
+        @drop.prevent="handleDrop($event, 'A')"
+      >
+        <input type="file" ref="fileInputA" class="hidden" accept="image/*" @change="handleFileSelect($event, 'A')" />
 
-        <input type="file" ref="fileInputA" class="hidden" accept="image/*" @change="handleFileSelect($event, 'A')"/>
-
-        <div v-if="imageA"
-             class="w-full h-full absolute top-0 left-0 p-3 pointer-events-none flex align-items-center justify-content-center">
-          <img :src="imageA" class="max-w-full max-h-full border-round shadow-4" style="object-fit: contain;"/>
+        <div v-if="imageA" class="w-full h-full absolute top-0 left-0 p-3 pointer-events-none flex align-items-center justify-content-center">
+          <img :src="imageA" class="max-w-full max-h-full border-round shadow-4" style="object-fit: contain;" />
         </div>
         <div v-else class="text-center relative z-1 pointer-events-none">
-          <i class="pi pi-image text-5xl text-gray-500 mb-3"></i>
+          <ImageIcon :size="48" class="text-secondary mb-3" />
           <div class="font-bold text-xl mb-1 text-white">Image A (Left)</div>
-          <div class="text-gray-400">Drop or Click</div>
+          <div class="text-secondary text-sm">Drop or Click to browse</div>
         </div>
       </div>
 
+      <!-- Dropzone B -->
       <div
-          class="drop-zone p-4 flex flex-column align-items-center justify-content-center cursor-pointer transition-all transition-duration-300 relative border-round"
-          :class="{ 'drop-zone-active': isDraggingOverB }"
-          @click="$refs.fileInputB.click()"
-          @dragover.prevent
-          @dragenter="isDraggingOverB = true"
-          @dragleave="handleDragLeave($event, 'B')"
-          @drop.prevent="handleDrop($event, 'B')">
+        class="drop-zone-ds p-4 flex flex-column align-items-center justify-content-center cursor-pointer relative border-round"
+        :class="{ 'drop-zone-active': isDraggingOverB }"
+        @click="fileInputB.click()"
+        @dragover.prevent
+        @dragenter="isDraggingOverB = true"
+        @dragleave="handleDragLeave($event, 'B')"
+        @drop.prevent="handleDrop($event, 'B')"
+      >
+        <input type="file" ref="fileInputB" class="hidden" accept="image/*" @change="handleFileSelect($event, 'B')" />
 
-        <input type="file" ref="fileInputB" class="hidden" accept="image/*" @change="handleFileSelect($event, 'B')"/>
-
-        <div v-if="imageB"
-             class="w-full h-full absolute top-0 left-0 p-3 pointer-events-none flex align-items-center justify-content-center">
-          <img :src="imageB" class="max-w-full max-h-full border-round shadow-4" style="object-fit: contain;"/>
+        <div v-if="imageB" class="w-full h-full absolute top-0 left-0 p-3 pointer-events-none flex align-items-center justify-content-center">
+          <img :src="imageB" class="max-w-full max-h-full border-round shadow-4" style="object-fit: contain;" />
         </div>
         <div v-else class="text-center relative z-1 pointer-events-none">
-          <i class="pi pi-image text-5xl text-gray-500 mb-3"></i>
+          <ImageIcon :size="48" class="text-secondary mb-3" />
           <div class="font-bold text-xl mb-1 text-white">Image B (Right)</div>
-          <div class="text-gray-400">Drop or Click</div>
+          <div class="text-secondary text-sm">Drop or Click to browse</div>
         </div>
       </div>
     </div>
@@ -179,50 +167,43 @@ const reset = () => {
 </template>
 
 <style scoped>
-.comparator-view {
-  background: transparent;
+.comparator-view-ds {
+  background: var(--color-bg-canvas, #0A0A0D);
 }
 
-.text-gradient {
-  background: var(--grad-text);
+.comp-title-ds {
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.drop-zone {
+.drop-zone-ds {
   width: 300px;
   height: 300px;
-  background: var(--bg-card);
-  border: 2px solid var(--accent-primary);
-  backdrop-filter: blur(10px);
+  background: var(--color-surface-1, #14151B);
+  border: 2px dashed var(--color-border-default, rgba(255, 255, 255, 0.10));
+  border-radius: var(--radius-lg, 12px);
   position: relative;
   z-index: 1;
-  opacity: 0.6;
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.drop-zone::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: var(--grad-hover);
-  border-radius: inherit;
-  z-index: -2;
-  opacity: 0;
-  filter: blur(8px);
-  transition: opacity 0.3s ease;
+.drop-zone-ds:hover, .drop-zone-active {
+  background: var(--color-surface-2, #23252F);
+  border-color: var(--color-accent-primary, #67E0D8);
+  transform: translateY(-4px);
 }
 
-.drop-zone:hover, .drop-zone-active {
-  transform: translateY(-5px);
-  opacity: 1;
+.text-secondary {
+  color: var(--color-text-secondary, #9294A3);
 }
 
-.drop-zone:hover::before, .drop-zone-active::before {
-  opacity: 0.8;
-}
-
-.drop-zone-active {
-  box-shadow: 0 0 30px var(--accent-primary);
+.text-white {
+  color: var(--color-text-primary, #F2F3F7);
 }
 </style>
