@@ -24,7 +24,10 @@ const handshakeToken = ipcRenderer.sendSync('get-handshake-token-sync');
 contextBridge.exposeInMainWorld('electronAPI', {
     selectFolder: () => ipcRenderer.invoke('dialog:openDirectory'),
     openExternal: (url) => ipcRenderer.send('open-external-link', url),
-    getHandshakeToken: () => handshakeToken
+    getHandshakeToken: () => handshakeToken,
+    minimizeWindow: () => ipcRenderer.send('window-minimize'),
+    maximizeWindow: () => ipcRenderer.send('window-maximize'),
+    closeWindow: () => ipcRenderer.send('window-close')
 });
 
 contextBridge.exposeInMainWorld('windowAPI', {
@@ -32,3 +35,4 @@ contextBridge.exposeInMainWorld('windowAPI', {
     maximize: () => ipcRenderer.send('window-maximize'),
     close: () => ipcRenderer.send('window-close')
 });
+

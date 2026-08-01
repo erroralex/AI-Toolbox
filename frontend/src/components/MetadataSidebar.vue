@@ -332,112 +332,75 @@ const cancelEdit = () => {
 }
 
 .raw-meta-pre {
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
+  background-color: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10));
+  border-radius: var(--radius-md, 8px);
   padding: 1rem;
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 60vh;
   overflow-y: auto;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary, #9294A3);
+}
+
+.metadata-sidebar-glass {
+
+  background: var(--color-surface-1, #14151B);
+  border-left: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));
+}
+
+.glass-input {
+  background: var(--color-surface-2, #23252F) !important;
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+}
+
+.glass-box {
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
 }
 
 .lora-chip {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  border: none !important;
-  position: relative;
-  z-index: 1;
-  overflow: visible !important;
-}
-
-.lora-chip::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  background: var(--grad-hover);
-  border-radius: 16px;
-  z-index: -2;
-}
-
-.lora-chip::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg-btn-inner);
-  border-radius: 16px;
-  z-index: -1;
+  background: var(--color-accent-secondary-bg, rgba(155, 126, 245, 0.12)) !important;
+  color: var(--color-accent-secondary, #9B7EF5) !important;
+  border: 1px solid rgba(155, 126, 245, 0.25) !important;
 }
 
 .ai-tag-chip {
-  background: rgba(100, 255, 218, 0.1) !important;
-  color: var(--accent-primary) !important;
-  border: 1px solid rgba(100, 255, 218, 0.3) !important;
+  background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12)) !important;
+  color: var(--color-accent-primary, #4FD8D0) !important;
+  border: 1px solid rgba(79, 216, 208, 0.25) !important;
 }
 
 .ai-tag-chip:hover {
-  background: rgba(100, 255, 218, 0.2) !important;
-}
-
-:deep(.glass-dialog) {
-  background: var(--bg-panel-opaque) !important;
-  border: 1px solid var(--border-input) !important;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  color: var(--text-primary) !important;
-}
-
-:deep(.glass-dialog .p-dialog-header) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  border-bottom: 1px solid var(--border-input) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-content) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-footer) {
-  background: transparent !important;
-  border-top: 1px solid var(--border-input) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-header-icon) {
-  color: var(--text-secondary) !important;
-}
-
-:deep(.glass-dialog .p-dialog-header-icon:hover) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-primary) !important;
+  background: rgba(79, 216, 208, 0.22) !important;
 }
 
 .text-yellow-500 {
-  color: var(--status-warning) !important;
+  color: var(--color-warning, #F5B84E) !important;
 }
 
 .text-red-400 {
-  color: var(--status-danger) !important;
+  color: var(--color-danger, #F2665B) !important;
 }
 
 .text-blue-400 {
-  color: var(--accent-primary) !important;
+  color: var(--color-accent-primary, #4FD8D0) !important;
 }
 
 .text-500 {
-  color: var(--text-secondary) !important;
+  color: var(--color-text-secondary, #9294A3) !important;
 }
 
 .text-white {
-  color: var(--text-primary) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
 }
 
 .border-white-alpha-10 {
-  border-color: var(--border-light) !important;
+  border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.06)) !important;
 }
 
 .star-btn:focus {
@@ -445,3 +408,4 @@ const cancelEdit = () => {
   outline: none !important;
 }
 </style>
+

@@ -6,32 +6,27 @@
     <title>Latent Library - Initializing</title>
     <style>
         :root {
-            /* --- Main Backgrounds --- */
-            --bg-app: #000000;
-            --bg-app-image: radial-gradient(circle at 15% 25%, rgba(102, 252, 241, 0.08) 0%, transparent 40%),
-                            radial-gradient(circle at 85% 75%, rgba(216, 112, 255, 0.08) 0%, transparent 40%);
-
-            /* --- Text --- */
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-
-            /* --- Accents & Gradients --- */
-            --accent-primary: #66fcf1;
-            --accent-secondary: #d870ff;
-            --grad-text: linear-gradient(90deg, #66fcf1, #d870ff);
-            --grad-hover: linear-gradient(135deg, #66fcf1 0%, #d870ff 100%);
-
-            /* --- Borders --- */
-            --border-input: rgba(255, 255, 255, 0.1);
+            --color-bg-canvas: #0A0A0D;
+            --color-text-primary: #F2F3F7;
+            --color-text-secondary: #9294A3;
+            --color-text-tertiary: #6F7180;
+            --color-accent-primary: #4FD8D0;
+            --color-accent-secondary: #9B7EF5;
+            --gradient-brand: linear-gradient(135deg, #4FD8D0 0%, #9B7EF5 100%);
+            --gradient-brand-text: linear-gradient(90deg, #4FD8D0, #9B7EF5);
+            --color-border-subtle: rgba(255, 255, 255, 0.06);
+            --color-surface-2: #23252F;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-app);
-            background-image: var(--bg-app-image);
-            color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-canvas);
+            background-image:
+                radial-gradient(circle at 50% 40%, rgba(79, 216, 208, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 50% 60%, rgba(155, 126, 245, 0.06) 0%, transparent 60%);
+            color: var(--color-text-primary);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,7 +34,7 @@
             height: 100vh;
             user-select: none;
             -webkit-app-region: drag;
-            border: 1px solid var(--border-input);
+            border: 1px solid var(--color-border-subtle);
             box-sizing: border-box;
             overflow: hidden;
         }
@@ -48,35 +43,65 @@
             text-align: center;
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-box {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        .logo-glow {
+            position: absolute;
+            inset: -8px;
+            background: var(--gradient-brand);
+            border-radius: 50%;
+            filter: blur(16px);
+            opacity: 0.4;
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+
+        .logo-svg {
+            width: 48px;
+            height: 48px;
+            position: relative;
+            z-index: 2;
         }
 
         h1 {
-            font-size: 32px;
-            margin: 0 0 10px 0;
-            font-weight: 700;
-            letter-spacing: 1px;
-            background: var(--grad-text);
+            font-size: 24px;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-brand-text);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(102, 252, 241, 0.2);
+            background-clip: text;
         }
 
         p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0 0 30px 0;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin: 0 0 16px 0;
             font-weight: 500;
         }
 
         .loader {
-            width: 200px;
+            width: 160px;
             height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
+            background: var(--color-surface-2);
+            border-radius: 999px;
             overflow: hidden;
             position: relative;
             margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
         .loader::after {
@@ -85,28 +110,50 @@
             top: 0;
             left: 0;
             height: 100%;
-            width: 50%;
-            background: var(--grad-hover);
-            animation: loading 1.5s infinite ease-in-out;
-            transform: translateX(-100%);
-            box-shadow: 0 0 15px var(--accent-primary);
+            width: 40%;
+            background: var(--gradient-brand);
+            border-radius: 999px;
+            animation: loading 1.5s infinite ease-in-out alternate;
+        }
+
+        .version {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 11px;
+            color: var(--color-text-tertiary);
+            margin-top: 8px;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.25; transform: scale(0.95); }
+            100% { opacity: 0.55; transform: scale(1.1); }
         }
 
         @keyframes loading {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(200%);
-            }
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(250%); }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <div class="logo-box">
+        <div class="logo-glow"></div>
+        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="#14151B"/>
+            <path d="M8 10C8 8.89543 8.89543 8 10 8H22C23.1046 8 24 8.89543 24 10V22C24 23.1046 23.1046 24 22 24H10C8.89543 24 8 23.1046 8 22V10Z" fill="url(#brand-grad)" fill-opacity="0.2" stroke="url(#brand-grad)" stroke-width="2"/>
+            <path d="M12 16L15 19L20 13" stroke="#4FD8D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+                <linearGradient id="brand-grad" x1="8" y1="8" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#4FD8D0"/>
+                    <stop offset="1" stop-color="#9B7EF5"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
     <h1>Latent Library</h1>
     <p>Initializing Application Core...</p>
     <div class="loader"></div>
+    <div class="version">v1.1.1</div>
 </div>
 </body>
 </html>

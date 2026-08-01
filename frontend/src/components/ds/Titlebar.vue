@@ -32,21 +32,18 @@ onMounted(() => {
 });
 
 const minimize = () => {
-  if (window.electronAPI?.minimizeWindow) {
-    window.electronAPI.minimizeWindow();
-  }
+  if (window.windowAPI?.minimize) window.windowAPI.minimize();
+  else if (window.electronAPI?.minimizeWindow) window.electronAPI.minimizeWindow();
 };
 
 const maximize = () => {
-  if (window.electronAPI?.maximizeWindow) {
-    window.electronAPI.maximizeWindow();
-  }
+  if (window.windowAPI?.maximize) window.windowAPI.maximize();
+  else if (window.electronAPI?.maximizeWindow) window.electronAPI.maximizeWindow();
 };
 
 const close = () => {
-  if (window.electronAPI?.closeWindow) {
-    window.electronAPI.closeWindow();
-  }
+  if (window.windowAPI?.close) window.windowAPI.close();
+  else if (window.electronAPI?.closeWindow) window.electronAPI.closeWindow();
 };
 </script>
 
@@ -55,14 +52,12 @@ const close = () => {
     <div class="brand-section">
       <img :src="latentMark" alt="Latent Logo" class="brand-icon" />
       <span class="brand-title">{{ title }}</span>
+      <StatusPill :status="engineStatus" label="Spring Boot" />
     </div>
 
     <div class="center-section no-drag">
-      <slot>
-        <StatusPill :status="engineStatus" label="Spring Boot" />
-      </slot>
+      <slot />
     </div>
-
 
     <div class="window-controls no-drag">
       <button class="win-btn min" title="Minimize" @click="minimize">
@@ -77,6 +72,7 @@ const close = () => {
     </div>
   </header>
 </template>
+
 
 <style scoped>
 .latent-titlebar {

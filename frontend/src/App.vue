@@ -8,7 +8,7 @@ import { RouterView, useRouter, useRoute } from 'vue-router';
 import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
 import Titlebar from '@/components/ds/Titlebar.vue';
-import SegmentedControl from '@/components/ds/SegmentedControl.vue';
+import Sidebar from '@/components/Sidebar.vue';
 import FolderNav from '@/components/FolderNav.vue';
 import SystemError from '@/components/SystemError.vue';
 import { useBrowserStore } from '@/stores/browser';
@@ -16,27 +16,6 @@ import { useBrowserStore } from '@/stores/browser';
 const router = useRouter();
 const route = useRoute();
 const store = useBrowserStore();
-
-const navOptions = [
-  { label: 'Gallery', value: '/' },
-  { label: 'Collections', value: '/collections' },
-  { label: 'Comparator', value: '/comparator' },
-  { label: 'Scrubber', value: '/scrub' },
-  { label: 'Speed Sorter', value: '/speedsorter' },
-  { label: 'Duplicates', value: '/duplicates' }
-];
-
-const currentNavValue = computed({
-  get() {
-    const path = route.path;
-    if (path === '/' || path.startsWith('/browser')) return '/';
-    const match = navOptions.find(opt => opt.value !== '/' && path.startsWith(opt.value));
-    return match ? match.value : '/';
-  },
-  set(val) {
-    router.push(val);
-  }
-});
 
 onMounted(() => {
   store.initialize();
@@ -73,6 +52,7 @@ onMounted(() => {
     <Titlebar title="Latent Library" />
 
     <main class="app-body">
+      <Sidebar />
       <FolderNav />
       <div class="content-workspace">
         <RouterView />
@@ -80,6 +60,7 @@ onMounted(() => {
     </main>
   </div>
 </template>
+
 
 <style scoped>
 .app-layout {
