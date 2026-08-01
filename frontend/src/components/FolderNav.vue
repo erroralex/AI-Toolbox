@@ -33,6 +33,7 @@ import {useConfirm} from 'primevue/useconfirm';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
 
+import logoDs from '@/assets/alx_logo.png';
 import logoNeon from '@/assets/alx_logo_neon.png';
 import logoGold from '@/assets/alx_logo_gold.png';
 import logoLight from '@/assets/alx_logo_light.png';
@@ -73,6 +74,7 @@ const themeOptions = ref([
 ]);
 
 const currentLogo = computed(() => {
+  if (logoDs) return logoDs;
   switch (store.currentTheme) {
     case 'gold':
       return logoGold;
@@ -86,6 +88,7 @@ const currentLogo = computed(() => {
       return logoNeon;
   }
 });
+
 
 watch(() => store.navRefreshKey, () => {
   loadTree();
