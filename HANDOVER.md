@@ -8,14 +8,15 @@
 - **Frontend:** Vue 3 + Vite + PrimeVue + Pinia (`frontend/`)
 - **Desktop Packaging:** Electron 31 (`electron/`)
 - **Database:** SQLite with Flyway migrations (`data/`)
+- **Active Feature Branch:** `feature/ui-redesign`
 
 ---
 
 ## AI Assistant Setup & Configuration
 
-The project has been fully configured using the **Drop-in Brain** system:
+The project is configured using the **Drop-in Brain** system:
 
-- **Rulebook (`AGENTS.md`):** Contains universal engineering guidelines, git rules, testing contracts, and technology-specific directives (Spring Boot 3.x, SQLite/Flyway, Vue 3, Modular Monolith).
+- **Rulebook (`AGENTS.md` / `GEMINI.md`):** Contains universal engineering guidelines, git rules, testing contracts, and technology-specific directives (Spring Boot 3.x, SQLite/Flyway, Vue 3, Modular Monolith).
 - **Assistant Shims:**
   - `CLAUDE.md` — Imports `@AGENTS.md` for Claude Code compatibility.
   - `GEMINI.md` — Full identical copy of `AGENTS.md` for Gemini CLI compatibility.
@@ -25,44 +26,78 @@ The project has been fully configured using the **Drop-in Brain** system:
   - `sql-migrations` — Flyway conventions, schema changes, and error recovery.
   - `spring-security` — Spring Boot 3 security filter chain & CORS patterns.
   - `api-design` — REST conventions, `ProblemDetail` error responses, and pagination.
-  - Junction `.claude/skills` -> `.agents/skills` linked and added to `.gitignore`.
-
-Verification can be re-run at any time by saying **"check my AI setup"**.
 
 ---
 
-## UI Redesign Status & Roadmap
+## UI Redesign Implementation Status
 
-A complete UI redesign plan has been authored based on the official **Latent Design System** (`Latent-Design-System`).
+The application has undergone a complete UI redesign based on the official **Latent Design System** specifications (`Latent-Design-System`).
 
-- **Implementation Plan Location:** [docs/implementation_plan.md](docs/implementation_plan.md)
-- **Source Design System Repository:** `https://github.com/erroralex/Latent-Design-System.git` (`c:\Users\error\IdeaProjects\Projects\Latent-Design-System`)
+### 1. Design System Primitive Library (`frontend/src/components/ds/`)
 
-### Key Decisions Confirmed
+Built 15 reusable Vue 3 `<script setup>` SFC primitives wrapped with type-safe `lucide-vue-next` icons:
+- `Titlebar.vue` — Frameless titlebar with window IPC controls and engine status indicator.
+- `StatusPill.vue` — Engine health indicator (`online`, `starting`, `offline`).
+- `LButton.vue` & `LIconButton.vue` — Standardized button components (`primary`, `secondary`, `danger`, `ghost`).
+- `LInput.vue` & `LSelect.vue` — Form input and select controls.
+- `LCheckbox.vue`, `LSwitch.vue`, `LSlider.vue` — Checkbox, toggle switch, and range slider controls.
+- `LBadge.vue` & `LProgressBar.vue` — Status badge pill and progress bar indicators.
+- `LCard.vue` & `LDialog.vue` — Card containers and modal dialog windows.
+- `SegmentedControl.vue` & `NavItem.vue` — View toggle and navigation item primitives.
 
-1. **Single Dark Mode Standardisation:**
-   Transitioning from legacy multi-themes (`neon`, `light`, `gold`, `fanfriction`) to the desaturated Latent dark mode canvas (`#0A0A0D`), flat surface levels (`#14151B`), hairline white borders (`rgba(255,255,255,0.06-0.18)`), and desaturated cyan (`#4FD8D0`) / violet (`#9B7EF5`) accents.
-2. **Type-safe Lucide Icons:**
-   Installing `lucide-vue-next` to standardize stroke weight (1.5-1.8px) across all UI views and components.
-3. **App Shell Restructuring & Brand Assets:**
-   - Integrated official brand mark (`latent-mark.svg`) and lockup (`latent-lockup.svg`) vectors.
-   - Updated developer credit logo in `README.md` and app sidebar (`FolderNav.vue`) to the official Design System developer mark (`alx_logo.png`).
-   - Integrating a 52px frameless titlebar with custom window controls and a `StatusPill` component monitoring backend process health (`online`, `starting`, `offline`).
+### 2. App Shell & Navigation Layout
+
+- **Frameless Titlebar (`Titlebar.vue`)**:
+  - Displays the official Latent vector mark (`latent-mark.svg`), app title ("Latent Library"), and `StatusPill` right next to the title text.
+  - Exposes minimize, maximize, and close window controls via Electron IPC (`window.windowAPI` / `window.electronAPI`).
+- **Dual-Column Sidebar Architecture**:
+  - `Sidebar.vue` (200px fixed width): Primary sidemenu hosting view links (`Gallery`, `Collections`, `Comparator`, `Scrubber`, `Speed Sorter`, `Duplicates`), `Settings` button above the divider line, and developer credit logo link (`alx_logo.png`) below the divider line.
+  - `FolderNav.vue` (240px fixed width): Dedicated folder tree panel positioned to the right of `Sidebar.vue`, lazy-loading `Collections`, `Pinned`, and `This PC` (drives) with right-click context menu commands.
+- **Electron Native Splash Screen (`electron/splash.html`)**:
+  - Restyled with `#0A0A0D` canvas background, ambient radial cyan/violet glow, official SVG mark, brand gradient text, and animated loading bar.
+
+### 3. Feature Views & Toolbars
+
+- **`MetadataSidebar.vue` & `TaggerSidebar.vue`**:
+  - Restyled metadata inspection sidebar and WD14 AI Auto-Tagger with `#0A0A0D` canvas, `#14151B` surface level, `#23252F` inputs, confidence slider, and monospace LoRA badges (`#9B7EF5`).
+- **`BrowserToolbar.vue`**:
+  - Refactored toolbar containing search input, AI tag toggle, view mode switcher (`Gallery` / `Browser`), and metadata dropdown filters (`Model`, `Sampler`, `LoRA`, `Stars`).
+- **`ComparisonMetadataPanel.vue` & `ComparatorView.vue`**:
+  - Side-by-side comparison panels with brand gradient headers (`linear-gradient(90deg, #67E0D8, #9B7EF5)`), surface card containers, and synchronized split-viewer integration.
+- **`ScrubView.vue`**:
+  - Metadata scrubber featuring a drag-and-drop file zone, shield icon, and clean export copy button.
+- **`SpeedSorterView.vue`**:
+  - High-efficiency keyboard-driven triage view (`1-5`, `X`/`DEL`, `Ctrl+Z`, `SPACE`) with fixed container bounds preventing taskbar clipping.
+- **`DuplicateDetectiveView.vue`**:
+  - Perceptual dHash and cryptographic SHA-256 duplicate pair inspector with batch resolve dialog.
+
+### 4. System Stability & Global Overrides
+
+- **Global Response Error Interceptor (`api.js`)**:
+  - Updated to ignore global error toast popups on standard `404 Not Found` responses, allowing components to handle missing metadata/thumbnails gracefully.
+- **PrimeVue Overrides (`primevue-overrides.css` & `buttons.css`)**:
+  - Removed all legacy pseudo-element blur glow rules (`filter: blur(4px)`, `--grad-hover`). Buttons, sliders, context menus, and dropdown panels now feature clean Latent DS surface levels and borders.
 
 ---
 
-## Next Execution Steps
+## Verification & Build Commands
 
-1. **Install Dependencies:**
-   ```bash
-   cd frontend && npm install lucide-vue-next
-   ```
-2. **Copy Tokens & Brand Assets:**
-   Copy `styles.css` and `tokens/*.css` from `Latent-Design-System` into `frontend/src/assets/css/latent/`. (Brand vectors `latent-mark.svg`, `latent-lockup.svg`, and `alx_logo.png` have already been copied into `frontend/src/assets/` and linked).
-3. **Build Component Primitives:**
-   Implement Vue 3 `<script setup>` SFCs in `frontend/src/components/ds/` (`Titlebar`, `StatusPill`, `LButton`, `LInput`, `LSelect`, `LSwitch`, `LSlider`, `LCard`, `LDialog`, `SegmentedControl`, `NavItem`).
-4. **Restyle Shell & Views:**
-   Update `App.vue`, `FolderNav.vue`, `BrowserToolbar.vue`, `ImageCard.vue`, `MetadataSidebar.vue`, `CollectionsView.vue`, `ComparatorView.vue`, `SpeedSorterView.vue`, `DuplicateDetectiveView.vue`, and `ScrubView.vue`.
-5. **Verify:**
-   Build frontend (`cd frontend && npm run build`) and run backend tests (`cd backend && ./mvnw test`).
+- **Build Frontend:**
+  ```bash
+  cd frontend && npm run build
+  ```
+- **Run Backend Unit Tests:**
+  ```bash
+  cd backend && ./mvnw test
+  ```
+- **Run Desktop App Locally:**
+  ```bash
+  # Terminal 1 (Backend)
+  cd backend && ./mvnw spring-boot:run
 
+  # Terminal 2 (Frontend)
+  cd frontend && npm run dev
+
+  # Terminal 3 (Electron Shell)
+  cd electron && npm start
+  ```
