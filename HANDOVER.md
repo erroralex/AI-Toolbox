@@ -78,6 +78,15 @@ Built 15 reusable Vue 3 `<script setup>` SFC primitives wrapped with type-safe `
 - **PrimeVue Overrides (`primevue-overrides.css` & `buttons.css`)**:
   - Removed all legacy pseudo-element blur glow rules (`filter: blur(4px)`, `--grad-hover`). Buttons, sliders, context menus, and dropdown panels now feature clean Latent DS surface levels and borders.
 
+### 5. Civitai Resources & Metadata Cache Refresh
+
+- **Civitai Resources Parsing (`CommonStrategy.java`)**:
+  - Enhanced `CommonStrategy.java` to parse embedded `Civitai resources:` JSON arrays (handling escaped Unicode sequences like `OB\u534A\u5199...`), extracting `Model = "FLUX (Dev)"` and LoRAs into tags (`<lora:OB半写实肖像画...:0.55>`).
+- **Metadata Cache Auto-Refresh (`ImageMetadataService.java`)**:
+  - Upgraded `ImageMetadataService.getCachedMetadata` to detect stale/incomplete cached metadata entries in SQLite (where `Model` is missing or `-`) and automatically re-extract parameters from the file, refreshing the database cache.
+- **Unit Tests**:
+  - Added unit test cases in `CommonStrategyTest.java` and `ImageMetadataServiceTest.java` covering Civitai Unicode resource parsing and stale cache auto-refresh.
+
 ---
 
 ## Verification & Build Commands
@@ -101,3 +110,4 @@ Built 15 reusable Vue 3 `<script setup>` SFC primitives wrapped with type-safe `
   # Terminal 3 (Electron Shell)
   cd electron && npm start
   ```
+

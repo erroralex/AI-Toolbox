@@ -58,7 +58,8 @@ class ImageMetadataServiceTest {
         when(file.exists()).thenReturn(true);
 
         int imageId = 1;
-        Map<String, String> cachedMeta = Map.of("Prompt", "cached");
+        Map<String, String> cachedMeta = Map.of("Prompt", "cached", "Model", "SDXL");
+
 
         when(imageRepository.getIdByPath(path)).thenReturn(imageId);
         when(metadataRepository.hasMetadata(imageId)).thenReturn(true);
@@ -115,4 +116,31 @@ class ImageMetadataServiceTest {
         verify(metadataRepository).saveDHash(imageId, dHash);
         verify(ftsService).updateFtsIndex(imageId);
     }
+
+    @Test
+    @DisplayName("getCachedMetadata should re-extract and refresh cache if stored metadata has missing Model")
+    void getCachedMetadata_ShouldRefreshStaleCacheWhenModelIsMissing() {
+        String path = "/test/img.png";
+        File file = mock(File.class);
+        when(file.exists()).thenReturn(true);
+
+        int imageId = 1;
+        Map<String, String> staleMeta = Map.of("Prompt", "test", "Model", "-");
+        Map<String, String> freshMeta = Map.of("Prompt", "test", "Model", "FLUX (Dev)", "Loras", "<lora:test:0.5>");
+        long dHash = 999L;
+
+        when(imageRepository.getIdByPath(path)).thenReturn(imageId);
+        when(metadataRepository.hasMetadata(imageId)).thenReturn(true);
+        when(metadataRepository.getMetadata(imageId)).thenReturn(staleMeta);
+        when(metadataService.getExtractedData(file)).thenReturn(freshMeta);
+        when(dHashService.calculateDHash(file)).thenReturn(dHash);
+
+        Map<String, String> result = imageMetadataService.getCachedMetadata(file, path);
+
+        assertEquals("FLUX (Dev)", result.get("Model"));
+        verify(metadataRepository).saveMetadata(imageId, freshMeta);
+        verify(metadataRepository).saveDHash(imageId, dHash);
+        verify(ftsService).updateFtsIndex(imageId);
+    }
 }
+
