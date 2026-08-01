@@ -354,51 +354,6 @@ const cancelEdit = () => {
 
 <style scoped>
 .metadata-sidebar-glass {
-  background: var(--bg-sidebar-right);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-left: 1px solid var(--border-light);
-  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
-}
-
-.glass-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
-}
-
-.glass-input {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-  color: var(--text-primary);
-}
-
-.glass-input:enabled:focus {
-  box-shadow: none !important;
-  outline: none !important;
-  border-color: transparent !important;
-  border-image: var(--grad-hover) 1 !important;
-}
-
-.text-gradient {
-  background: var(--grad-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.raw-meta-pre {
-  background-color: var(--color-surface-2, #23252F);
-  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10));
-  border-radius: var(--radius-md, 8px);
-  padding: 1rem;
-  white-space: pre-wrap;
-  word-break: break-all;
-  max-height: 60vh;
-  overflow-y: auto;
-  color: var(--color-text-secondary, #9294A3);
-}
-
-.metadata-sidebar-glass {
-
   background: var(--color-surface-1, #14151B);
   border-left: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
   box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));

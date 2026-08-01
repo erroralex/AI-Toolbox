@@ -101,6 +101,55 @@ Built 15 reusable Vue 3 `<script setup>` SFC primitives wrapped with type-safe `
 - **Unit Tests**:
   - Added unit test cases in `CommonStrategyTest.java` and `ImageMetadataServiceTest.java` covering Civitai Unicode resource parsing and stale cache auto-refresh.
 
+### 6. Design System Deep-Dive Audit & Token Cleanup
+
+Follow-up audit pass to remove remaining legacy (pre-redesign) CSS variables and non-DS
+component wrappers that survived the initial redesign:
+
+- **`ImageSplitViewer.vue`**: `--accent-primary` → `--color-accent-primary`; removed
+  non-existent `--grad-hover`; "Left"/"Right" badges converted from PrimeFlex alpha
+  classes to a DS surface-overlay badge style.
+- **`SingleImageViewer.vue`**: `--status-danger`/`--text-primary` → `--color-danger`/
+  `--color-text-primary`; nav arrow hover states converted from PrimeFlex alpha
+  classes to DS surface hover styles.
+- **`VirtualGallery.vue`**: selection outline/glow switched from legacy PrimeVue
+  `--primary-color`/`--primary-color-rgb` to `--color-accent-primary`/`--glow-primary`;
+  removed custom webkit scrollbar rules (now inherits the global DS scrollbar from
+  `base.css`).
+- **`MetadataSidebar.vue`**: removed a stale, duplicated `<style scoped>` block
+  referencing obsolete tokens (`--bg-sidebar-right`, `--glass-blur`, `--border-light`,
+  `--bg-input`, `--border-input`, `--grad-hover`, `--grad-text`).
+- **`SystemError.vue`**: switched to DS tokens (`--color-bg-canvas`,
+  `--color-surface-1`, `--color-border-strong`), replaced hardcoded `#ff4d4d` with
+  `--color-danger`, and swapped the raw PrimeVue `<Button>` for `<LButton variant="primary">`.
+- **`ImageBrowserView.vue`**: rename-modal style overrides moved to DS tokens; footer
+  actions swapped from raw PrimeVue `<Button>` to `<LButton variant="secondary">` /
+  `<LButton variant="primary">`.
+- **`LButton.vue`**: added an `icon` slot alias (alongside the existing `icon-left`/
+  `icon-right`) so the `<template #icon>` convention already used at ~20 call sites
+  across the app (SystemError, ImageBrowserView, TaggerSidebar, CollectionsView,
+  ComparatorView, DuplicateDetectiveView, ScrubView, SpeedSorterView,
+  ComparisonMetadataPanel) actually renders — previously those icons were silently
+  dropped because no slot named `icon` existed.
+- **Toast notifications (`primevue-overrides.css`)**: added a full `.p-toast` override
+  block (message card, summary/detail text, severity accent borders for
+  info/success/warn/error, close icon) using DS tokens throughout. Verified every
+  fallback hex against `Latent-Design-System/tokens/colors.css` and `effects.css` —
+  exact match (`--color-accent-primary #4FD8D0`, `--color-success #3DD68C`,
+  `--color-warning #F5B84E`, `--color-danger #F2665B`, `--radius-lg 12px`,
+  `--shadow-panel`, `--duration-fast 120ms`).
+
+**Known pre-existing, out-of-scope issue**: the legacy multi-theme system
+(`themes/neon.css`, `themes/gold.css`, `themes/light.css`, `themes/fanfriction*.css`)
+and `components/layout.css` still define/consume the old token namespace
+(`--bg-app`, `--accent-primary`, `--grad-hover`, `--status-danger`, etc.). These
+predate the Latent DS redesign and are a separate theming feature — left untouched
+since no component in this audit depends on them anymore (all fixed components now
+use `--color-*` DS tokens with hardcoded fallbacks).
+
+Verified via `cd frontend && npm run build` (clean) and `cd backend && ./mvnw test`
+(153 tests, 0 failures).
+
 ---
 
 ## Verification & Build Commands

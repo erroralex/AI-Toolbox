@@ -30,6 +30,7 @@ const handleClick = (e) => {
     :disabled="disabled"
     @click="handleClick"
   >
+    <slot name="icon" />
     <slot name="icon-left" />
     <slot />
     <slot name="icon-right" />

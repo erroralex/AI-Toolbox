@@ -32,7 +32,8 @@ import CustomContextMenu from '@/components/CustomContextMenu.vue';
 import {useToast} from 'primevue/usetoast';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
+import LButton from '@/components/ds/LButton.vue';
+import { Check, X } from 'lucide-vue-next';
 
 const store = useBrowserStore();
 const route = useRoute();
@@ -373,14 +374,22 @@ watch(() => store.imageFocusRequested, (requested) => {
 
     <CustomContextMenu ref="cm" :model="menuModel"/>
 
-    <Dialog v-model:visible="showRenameDialog" header="Rename File" :modal="true" class="glass-dialog">
-      <div class="flex flex-column gap-3">
-        <span class="p-text-secondary block mb-2">Enter new filename:</span>
+    <Dialog v-model:visible="showRenameDialog" header="Rename File" :modal="true" class="glass-dialog" style="width: 400px;">
+      <div class="flex flex-column gap-3 py-2">
+        <span class="text-sm text-secondary block mb-1">Enter new filename:</span>
         <InputText v-model="newFileName" class="w-full glass-input" autofocus @keyup.enter="performRename"/>
       </div>
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" @click="showRenameDialog = false" class="p-button-text"/>
-        <Button label="Rename" icon="pi pi-check" @click="performRename" autofocus/>
+        <div class="flex justify-content-end gap-2 pt-2">
+          <LButton variant="secondary" size="sm" @click="showRenameDialog = false">
+            <template #icon><X :size="14" /></template>
+            Cancel
+          </LButton>
+          <LButton variant="primary" size="sm" @click="performRename">
+            <template #icon><Check :size="14" /></template>
+            Rename
+          </LButton>
+        </div>
       </template>
     </Dialog>
   </div>
@@ -410,22 +419,26 @@ watch(() => store.imageFocusRequested, (requested) => {
 .glass-dialog .p-dialog-header,
 .glass-dialog .p-dialog-content,
 .glass-dialog .p-dialog-footer {
-  background: var(--bg-panel-opaque) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-input) !important;
+  background: var(--color-surface-1, #14151B) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+  border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.06)) !important;
 }
 
 .glass-input {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-  color: var(--text-primary) !important;
+  background: var(--color-surface-2, #23252F) !important;
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary, #9294A3);
 }
 
 /* --- Added: Lazy Loading Image Placeholder Styles --- */
 /* Uses :deep() to inject styling down into the VirtualGallery child component */
 :deep(.image-card) {
-  background-color: var(--surface-card, rgba(255, 255, 255, 0.05));
-  border-radius: 8px;
+  background-color: var(--color-surface-1, #14151B);
+  border-radius: var(--radius-md, 8px);
   overflow: hidden;
   position: relative;
 }

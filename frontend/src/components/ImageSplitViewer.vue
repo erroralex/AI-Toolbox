@@ -230,7 +230,7 @@ defineExpose({resetZoom});
            :style="{
               left: (splitX * zoom) + 'px',
               width: '2px',
-              backgroundColor: 'var(--accent-primary)',
+              backgroundColor: 'var(--color-accent-primary)',
               boxShadow: '0 0 4px rgba(0,0,0,0.5)'
            }">
         <div
@@ -242,10 +242,10 @@ defineExpose({resetZoom});
     </div>
 
     <div v-if="imageA && imageB" class="absolute top-0 left-0 p-3 z-2 pointer-events-none">
-      <span class="bg-black-alpha-70 text-white px-2 py-1 border-round font-bold">Left</span>
+      <span class="split-badge-ds">Left</span>
     </div>
     <div v-if="imageA && imageB" class="absolute top-0 right-0 p-3 z-2 text-right pointer-events-none">
-      <span class="bg-black-alpha-70 text-white px-2 py-1 border-round font-bold">Right</span>
+      <span class="split-badge-ds">Right</span>
     </div>
 
     <div v-if="!imageA || !imageB" class="h-full flex align-items-center justify-content-center text-gray-500 italic">
@@ -260,10 +260,23 @@ defineExpose({resetZoom});
 }
 
 .slider-handle {
-  background: linear-gradient(#000, #000) padding-box,
-  var(--grad-hover) border-box;
-  border: 2px solid transparent;
+  background: var(--color-surface-1, #14151B);
+  border: 2px solid var(--color-accent-primary, #67E0D8);
+  box-shadow: var(--glow-primary, 0 0 0 3px rgba(79, 216, 208, 0.16));
   z-index: 10;
+}
+
+.split-badge-ds {
+  background: var(--color-surface-overlay, rgba(10, 10, 13, 0.72));
+  backdrop-filter: var(--blur-glass, blur(20px));
+  -webkit-backdrop-filter: var(--blur-glass, blur(20px));
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  color: var(--color-text-primary, #F2F3F7);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm, 6px);
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .cursor-move {
