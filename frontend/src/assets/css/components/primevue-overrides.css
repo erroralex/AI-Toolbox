@@ -378,6 +378,51 @@ html body .p-slider:not(.p-disabled) .p-slider-handle:hover {
 
 .p-multiselect-item.p-highlight .p-checkbox .p-checkbox-box,
 .p-multiselect-item[aria-selected="true"] .p-checkbox .p-checkbox-box {
-    background: var(--accent-primary) !important;
-    border-color: var(--accent-primary) !important;
+    background: var(--color-accent-primary, #4FD8D0) !important;
+    border-color: var(--color-accent-primary, #4FD8D0) !important;
 }
+
+/* --- Toast & Notification Overrides --- */
+.p-toast-message,
+.Toastify__toast {
+    background: var(--color-surface-1, #14151B) !important;
+    color: var(--color-text-primary, #F2F3F7) !important;
+    border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+    border-radius: var(--radius-lg, 12px) !important;
+    box-shadow: var(--shadow-popover, 0 12px 32px -8px rgba(0,0,0,0.55)) !important;
+    font-family: var(--font-sans, Inter, sans-serif) !important;
+    font-size: 13px !important;
+}
+
+.p-toast-message-error,
+.Toastify__toast--error {
+    border-left: 3px solid var(--color-danger, #F2665B) !important;
+}
+
+.p-toast-message-success,
+.Toastify__toast--success {
+    border-left: 3px solid var(--color-success, #3DD68C) !important;
+}
+
+.p-toast-message-warn,
+.Toastify__toast--warning {
+    border-left: 3px solid var(--color-warning, #F5B84E) !important;
+}
+
+.Toastify__toast-theme--dark {
+    background: var(--color-surface-1, #14151B) !important;
+    color: var(--color-text-primary, #F2F3F7) !important;
+}
+
+.Toastify__progress-bar--error {
+    background: var(--color-danger, #F2665B) !important;
+}
+
+.Toastify__progress-bar--success {
+    background: var(--color-success, #3DD68C) !important;
+}
+
+.Toastify__progress-bar--warning {
+    background: var(--color-warning, #F5B84E) !important;
+}
+

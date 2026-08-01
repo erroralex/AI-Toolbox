@@ -18,41 +18,56 @@ const emit = defineEmits(['click']);
 </script>
 
 <template>
-  <div
+  <button
     class="nav-item"
     :class="{ active }"
     @click="$emit('click', $event)"
   >
+    <span v-if="active" class="active-indicator" />
     <span v-if="$slots.icon" class="nav-icon">
       <slot name="icon" />
     </span>
     <span class="nav-label">{{ label }}</span>
     <span v-if="count !== null" class="nav-count">{{ count }}</span>
-  </div>
+  </button>
 </template>
 
 <style scoped>
 .nav-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px 9px 14px;
   border-radius: var(--radius-md, 8px);
+  border: none;
   cursor: pointer;
-  user-select: none;
   font-family: var(--font-sans, Inter, sans-serif);
   font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-secondary, #9294A3);
-  transition: all var(--duration-fast, 120ms) var(--ease-standard);
-  border: 1px solid transparent;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-text-tertiary, #6F7180);
+  transition: background var(--duration-fast, 120ms) var(--ease-standard),
+              color var(--duration-fast, 120ms) var(--ease-standard);
+  outline: none;
+}
+
+.active-indicator {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2.5px;
+  border-radius: 0 2px 2px 0;
+  background: var(--gradient-brand, linear-gradient(135deg, #4FD8D0 0%, #9B7EF5 100%));
 }
 
 .nav-icon {
   display: flex;
   align-items: center;
-  color: var(--color-text-tertiary, #6F7180);
-  transition: color var(--duration-fast, 120ms) var(--ease-standard);
+  color: inherit;
 }
 
 .nav-label {
@@ -76,23 +91,8 @@ const emit = defineEmits(['click']);
   color: var(--color-text-primary, #F2F3F7);
 }
 
-.nav-item:hover:not(.active) .nav-icon {
-  color: var(--color-text-primary, #F2F3F7);
-}
-
 .nav-item.active {
   background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12));
-  color: var(--color-accent-primary, #4FD8D0);
-  font-weight: 600;
-  border-color: rgba(79, 216, 208, 0.2);
-}
-
-.nav-item.active .nav-icon {
-  color: var(--color-accent-primary, #4FD8D0);
-}
-
-.nav-item.active .nav-count {
-  background: rgba(79, 216, 208, 0.2);
-  color: var(--color-accent-primary, #4FD8D0);
+  color: var(--color-text-primary, #F2F3F7);
 }
 </style>

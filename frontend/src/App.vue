@@ -61,15 +61,8 @@ onMounted(() => {
     </div>
 
     <!-- Latent Design System Frameless Titlebar -->
-    <Titlebar title="Latent Library">
-      <template #default>
-        <SegmentedControl
-          v-model="currentNavValue"
-          :options="navOptions"
-          size="md"
-        />
-      </template>
-    </Titlebar>
+    <Titlebar title="Latent Library" />
+
 
     <main class="app-body">
       <FolderNav />

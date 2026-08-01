@@ -32,6 +32,8 @@ import Dialog from 'primevue/dialog';
 import {useConfirm} from 'primevue/useconfirm';
 import InputText from 'primevue/inputtext';
 import Dropdown from 'primevue/dropdown';
+import NavItem from '@/components/ds/NavItem.vue';
+import { Image as ImageIcon, Folder as FolderIcon, ArrowLeftRight, Shield, Zap, Copy } from 'lucide-vue-next';
 
 import logoDs from '@/assets/alx_logo.png';
 import logoNeon from '@/assets/alx_logo_neon.png';
@@ -43,6 +45,27 @@ import logoFanLight from '@/assets/alx_logo_fan_light.png';
 const store = useBrowserStore();
 const router = useRouter();
 const route = useRoute();
+
+const mainNavItems = [
+  { id: 'gallery', label: 'Gallery', icon: ImageIcon, path: '/' },
+  { id: 'collections', label: 'Collections', icon: FolderIcon, path: '/collections' },
+  { id: 'comparator', label: 'Comparator', icon: ArrowLeftRight, path: '/comparator' },
+  { id: 'scrub', label: 'Scrubber', icon: Shield, path: '/scrub' },
+  { id: 'sorter', label: 'Speed Sorter', icon: Zap, path: '/speedsorter' },
+  { id: 'dupes', label: 'Duplicates', icon: Copy, path: '/duplicates' }
+];
+
+const isNavActive = (path) => {
+  if (path === '/') {
+    return route.path === '/' || route.path.startsWith('/browser');
+  }
+  return route.path.startsWith(path);
+};
+
+const navigateToPath = (path) => {
+  router.push(path);
+};
+
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -557,15 +580,28 @@ onMounted(loadTree);
 </script>
 
 <template>
-  <div class="folder-nav-glass h-full flex flex-column"
-       style="width: 290px; min-width: 300px;">
+  <aside class="folder-nav-glass h-full flex flex-column">
 
-    <div
-        class="p-3 font-bold text-lg border-bottom-1 border-white-alpha-10 flex align-items-center justify-content-between"
-        style="background: rgba(255,255,255,0.02)">
-      <div class="flex align-items-center gap-2">
-        <span class="text-gradient">Library</span>
-      </div>
+    <!-- Primary Navigation Routes -->
+    <div class="primary-nav-section flex flex-column gap-1 p-2">
+      <NavItem
+        v-for="item in mainNavItems"
+        :key="item.id"
+        :label="item.label"
+        :active="isNavActive(item.path)"
+        @click="navigateToPath(item.path)"
+      >
+        <template #icon>
+          <component :is="item.icon" :size="16" />
+        </template>
+      </NavItem>
+    </div>
+
+    <div class="separator-line px-2"></div>
+
+    <!-- Folder & Collection Navigation Tree -->
+    <div class="p-2 px-3 font-bold text-xs uppercase text-gray-400 flex align-items-center justify-content-between">
+      <span>Library</span>
       <div class="flex align-items-center gap-1">
         <Button icon="pi pi-plus" class="p-button-text p-button-rounded p-button-sm text-white"
                 v-tooltip.bottom="'Pin New Folder'" @click="pinNewFolder"/>
@@ -596,11 +632,14 @@ onMounted(loadTree);
       </Tree>
     </div>
 
-    <div class="p-2 mt-auto border-top-1 border-white-alpha-10 flex justify-content-center">
-      <img :src="currentLogo" alt="ALX Logo" class="nav-logo">
+    <div class="p-3 mt-auto border-top-1 border-white-alpha-10 flex justify-content-center">
+      <a href="https://github.com/erroralex" target="_blank" rel="noopener noreferrer" title="Built by Alexander Nilsson">
+        <img :src="currentLogo" alt="ALX Logo" class="nav-logo">
+      </a>
     </div>
 
     <CustomContextMenu ref="cm" :model="menuModel"/>
+
 
     <Dialog v-model:visible="showSettings" modal header="Settings" :style="{ width: '50vw' }" class="glass-dialog">
       <div class="flex flex-column gap-4">
@@ -716,8 +755,9 @@ onMounted(loadTree);
         </div>
       </div>
     </Dialog>
-  </div>
+  </aside>
 </template>
+
 
 <style scoped>
 .folder-nav-glass {

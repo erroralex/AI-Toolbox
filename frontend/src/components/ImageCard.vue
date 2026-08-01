@@ -81,18 +81,27 @@ const onRightClick = (event) => {
 .aspect-ratio-container {
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background-color: var(--bg-card);
+  background-color: var(--color-surface-1, #14151B);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
+  transition: border-color var(--duration-base, 180ms) var(--ease-standard),
+              box-shadow var(--duration-base, 180ms) var(--ease-standard);
+}
+
+.aspect-ratio-container:hover {
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.18));
+  box-shadow: var(--glow-primary, 0 0 0 3px rgba(79, 216, 208, 0.16));
 }
 
 .glass-overlay {
-  background: var(--bg-overlay);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border-top: 1px solid var(--border-light);
+  background: var(--color-surface-overlay, rgba(10, 10, 13, 0.72));
+  backdrop-filter: var(--blur-glass, blur(20px));
+  -webkit-backdrop-filter: var(--blur-glass, blur(20px));
+  border-top: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
 }
 
 .text-yellow-500 {
-  color: var(--status-warning) !important;
+  color: var(--color-warning, #F5B84E) !important;
 }
 
 :deep(.p-card-body) {
@@ -108,4 +117,4 @@ const onRightClick = (event) => {
   background: transparent;
   box-shadow: none;
 }
-</style>
+</style>
