@@ -85,17 +85,16 @@ defineExpose({show, hide});
   position: fixed;
   z-index: 999999 !important;
   min-width: 200px;
-  background: var(--bg-panel-opaque);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-input);
-  border-radius: 8px;
-  box-shadow: var(--shadow-panel);
-  padding: 6px 0;
-  color: var(--text-primary);
-  font-family: var(--font-family, sans-serif);
-  font-size: 14px;
+  background: var(--color-surface-1, #14151B);
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10));
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));
+  padding: 4px;
+  color: var(--color-text-primary, #F2F3F7);
+  font-family: var(--font-sans, Inter, sans-serif);
+  font-size: 13px;
   overflow: visible;
   user-select: none;
 }
+
 </style>

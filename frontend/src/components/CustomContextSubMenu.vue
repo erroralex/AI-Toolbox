@@ -88,9 +88,10 @@ const execute = (item) => {
 }
 
 .menu-item:hover {
-  background: var(--grad-hover);
-  color: #000000;
+  background: var(--color-surface-2, #23252F);
+  color: var(--color-text-primary, #F2F3F7);
 }
+
 
 .menu-item.disabled {
   opacity: 0.5;

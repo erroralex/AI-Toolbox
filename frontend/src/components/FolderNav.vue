@@ -298,9 +298,9 @@ onMounted(loadTree);
             class="tree-node-row flex align-items-center w-full"
             @contextmenu.prevent.stop="onCustomContextMenu($event, slotProps.node)"
           >
-            <span v-if="slotProps.node.icon" :class="['p-treenode-icon mr-2', slotProps.node.icon]"></span>
             <span class="p-treenode-label">{{ slotProps.node.label }}</span>
           </div>
+
         </template>
       </Tree>
     </div>
@@ -389,4 +389,11 @@ onMounted(loadTree);
   background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12)) !important;
   color: var(--color-accent-primary, #4FD8D0) !important;
 }
+
+:deep(.p-treenode-icon) {
+  margin-right: 6px !important;
+  color: var(--color-accent-primary, #67E0D8) !important;
+  font-size: 13px !important;
+}
 </style>
+
