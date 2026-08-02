@@ -53,12 +53,6 @@ A robust, high-performance desktop asset manager designed specifically for the A
   <i><b>Duplicate Detective:</b> Identify and manage identical or similar generations across your entire library.</i>
 </p>
 
-<p align="center">
-  <img src="frontend/src/assets/screenshots/custom_themes.png" width="800" alt="Custom Themes">
-  <br>
-  <i>Choose between Deep Neon, Clean Light, and Dark Premium themes to suit your workspace.</i>
-</p>
-
 </details>
 
 ---
@@ -96,7 +90,7 @@ Designed for the privacy-conscious artist, this application operates on a strict
   * **Virtualization:** Uses virtual scrolling to handle massive folders without UI lag.
   * **Project Loom:** Leverages Java 21 Virtual Threads for non-blocking background indexing.
 * **Modern UX & Customization:**
-  * **Multi-Theme System:** Choose between **Deep Neon Cinematic**, **Minimalist Light**, and **Dark Gold** themes.
+  * **Latent Design System:** A unified dark interface (cyan & violet accents) built from a shared component library for visual consistency across every tool view.
   * **Image Comparator:** Side-by-side comparison tool with a draggable slider.
 * **Real-Time Hot Folder Sync:** Keep the app open alongside your generator. The UI automatically polls and injects new images into your gallery in real-time as they are generated, without locking the database.
 * **Native WSL & Network Drive Support:** Seamlessly pin and monitor output folders from Dockerized ComfyUI/Automatic1111 environments running inside Windows Subsystem for Linux (`\\wsl$\`).
@@ -141,7 +135,7 @@ The application is built as a highly concurrent hybrid desktop app, combining a 
 [![Download Latest Release](https://img.shields.io/badge/Download-Latest_Release-2ea44f?style=for-the-badge&logo=github&logoColor=white)](https://github.com/erroralex/Latent-Library/releases/latest)
 
 1.  **Download** the appropriate file for your OS:
-    *   **Windows:** `Latent Library Setup X.X.X.exe`
+    *   **Windows:** `Latent Library X.X.X.exe` (portable, no installer)
     *   **Linux:** `Latent Library-X.X.X.AppImage` (mark as executable with `chmod +x`)
     *   **macOS:** `Latent Library-X.X.X.dmg`
 2.  **Run** the application. No installation is required.
@@ -171,7 +165,7 @@ Latent Library is completely portable. To update to a new version without losing
 
 ## 📜 License
 
-Distributed under the **MIT License**. Free for personal and commercial use.
+Distributed under the **MIT License**. Free for personal use.
 
 ---
 

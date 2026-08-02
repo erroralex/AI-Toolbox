@@ -124,7 +124,7 @@ npm run dist
 
 | Platform | Output |
 |---|---|
-| Windows | `Latent Library Setup X.X.X.exe` |
+| Windows | `Latent Library X.X.X.exe` (portable, no installer) |
 | Linux | `Latent Library-X.X.X.AppImage` |
 | macOS | `Latent Library-X.X.X.dmg` |
 
