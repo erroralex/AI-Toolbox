@@ -337,9 +337,12 @@ export const useBrowserStore = defineStore('browser', {
             this.isFetchingMore = true;
             const nextPage = this.page + 1;
 
+            const hasActiveFilter = this.searchQuery || this.selectedModel || this.selectedRating
+                || this.selectedSampler || this.selectedLora;
+
             try {
                 let response;
-                
+
                 if (this.activeCollection) {
                     response = await api.get('/images/search', {
                         params: {
@@ -348,7 +351,7 @@ export const useBrowserStore = defineStore('browser', {
                             size: this.pageSize
                         }
                     });
-                } else if (this.searchQuery || this.selectedModel || this.selectedRating) {
+                } else if (hasActiveFilter) {
                     response = await api.get('/images/search', {
                         params: {
                             query: this.searchQuery,
@@ -373,8 +376,8 @@ export const useBrowserStore = defineStore('browser', {
                     });
                 }
 
-                const newFiles = this.activeCollection || this.searchQuery ? response.data : response.data.content;
-                const isLast = this.activeCollection || this.searchQuery ? (newFiles.length < this.pageSize) : response.data.last;
+                const newFiles = this.activeCollection || hasActiveFilter ? response.data : response.data.content;
+                const isLast = this.activeCollection || hasActiveFilter ? (newFiles.length < this.pageSize) : response.data.last;
 
                 if (newFiles.length > 0) {
                     this.files.push(...newFiles);

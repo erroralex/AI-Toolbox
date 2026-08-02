@@ -14,12 +14,12 @@ const props = defineProps({
 });
 
 const statusText = computed(() => {
-  if (props.label) return props.label;
+  const prefix = props.label || 'Engine';
   switch (props.status) {
-    case 'online': return 'Engine: Online';
-    case 'starting': return 'Engine: Starting...';
-    case 'offline': return 'Engine: Offline';
-    default: return 'Engine Status';
+    case 'online': return `${prefix}: Online`;
+    case 'starting': return `${prefix}: Starting...`;
+    case 'offline': return `${prefix}: Offline`;
+    default: return `${prefix} Status`;
   }
 });
 </script>

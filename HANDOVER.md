@@ -219,6 +219,47 @@ vs. y≈117px for Collections/Comparator.
   Scrubber and Comparator back-to-back in the same session — titles now align at the
   identical y-position. Backend tests 153/153.
 
+### 9. Post-Redesign Regression Fixes (found via code review)
+
+A medium-depth code review of the redesign branch against pre-redesign behavior
+turned up several places where the DS refactor silently changed request contracts
+or dropped handlers. All fixed and re-verified:
+
+- **`SpeedSorterView.vue` — delete and undo were completely broken**: the delete
+  request sent `params: { source }` but `SpeedSorterController.deleteFile` expects
+  `@RequestParam("path")`; every Delete/X press 400'd. Separately, undo posted the
+  history entry as a JSON body while `SpeedSorterController.undoMove` expects
+  `@RequestParam("source")`/`@RequestParam("original")` query params, so every
+  Ctrl+Z 400'd too. The pre-redesign "a Recycle Bin delete can't be undone" guard
+  (checking `lastAction.isDelete`) had also been dropped, so undo would try — and
+  fail — to restore deleted files while optimistically showing them as restored in
+  the UI. Restored the original param shapes and the isDelete guard.
+- **`stores/browser.js` — `loadMoreImages()` filter-detection was inconsistent**:
+  the branch that routes to `/images/search` checked `searchQuery`/`selectedModel`/
+  `selectedRating` but omitted `selectedSampler`/`selectedLora`, so paginating with
+  only a Sampler or LoRA filter active fell through to the unfiltered `/library/scan`
+  branch. The response-shape check below it had the same omission, so paginating
+  with only Model or Rating active read `response.data.content` on a plain array
+  response and threw (silently swallowed), stopping infinite scroll. Both checks now
+  share one `hasActiveFilter` condition covering all five filter fields.
+- **`CollectionsView.vue` — "Dynamic Auto-Population" label stopped toggling the
+  switch on click**: `LSwitch`'s root element is itself a `<label>`, so a sibling
+  `<label for="isSmartCollection">` no longer forwards click-to-toggle (browsers only
+  auto-forward from a `for`-label to native form controls, not to another `<label>`).
+  Moved the label text into `LSwitch`'s own default slot instead of a separate
+  element.
+- **`ImageBrowserView.vue` — Escape no longer exited single-image Browser mode**:
+  the rewritten keydown switch dropped the `case 'Escape': if (store.viewMode ===
+  'browser') store.setViewMode('gallery')` handler present pre-redesign. Restored it.
+- **`components/ds/Titlebar.vue` / `StatusPill.vue` — status text stopped reflecting
+  backend health**: `Titlebar` passes a static `label="Backend"` prop, and
+  `StatusPill`'s `statusText` computed returned `props.label` verbatim before
+  reaching the status switch, so the pill always read literally "Backend" regardless
+  of online/starting/offline — only the dot color communicated status. `label` is now
+  used as a prefix (`"Backend: Online"`, etc.) combined with the live status.
+
+**Verification**: `npm run build` clean, backend tests 153/153.
+
 ---
 
 ## Verification & Build Commands

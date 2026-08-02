@@ -105,6 +105,10 @@ const handleKeydown = (e) => {
         openRenameDialog(store.selectedFile);
       }
       break;
+
+    case 'Escape':
+      if (store.viewMode === 'browser') store.setViewMode('gallery');
+      break;
   }
 };
 

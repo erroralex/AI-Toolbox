@@ -282,10 +282,11 @@ onMounted(() => {
 
           <div>
             <div class="flex align-items-center gap-3">
-              <LSwitch id="isSmartCollection" v-model="isSmartCollection" />
-              <label for="isSmartCollection" class="font-semibold text-sm cursor-pointer select-none" :class="isSmartCollection ? 'text-accent' : 'text-white'">
-                Dynamic Auto-Population
-              </label>
+              <LSwitch id="isSmartCollection" v-model="isSmartCollection">
+                <span class="font-semibold text-sm select-none" :class="isSmartCollection ? 'text-accent' : 'text-white'">
+                  Dynamic Auto-Population
+                </span>
+              </LSwitch>
             </div>
             <p class="text-xs text-secondary mt-2 mb-0">
               When enabled, this collection automatically includes images matching the smart filters below.

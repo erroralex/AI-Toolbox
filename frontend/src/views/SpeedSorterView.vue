@@ -122,8 +122,8 @@ const deleteFile = async () => {
   const fileToDelete = currentFile.value;
 
   try {
-    await api.post('/speedsorter/delete', null, { params: { source: fileToDelete } });
-    history.value.push({ source: fileToDelete, isDelete: true });
+    await api.post('/speedsorter/delete', null, { params: { path: fileToDelete } });
+    history.value.push({ source: fileToDelete, dest: null, isDelete: true });
     files.value.splice(currentIndex.value, 1);
 
     toast.add({ severity: 'info', summary: 'Recycled', detail: 'Moved to Recycle Bin', life: 1000 });
@@ -144,8 +144,15 @@ const undo = async () => {
   if (history.value.length === 0) return;
   const lastAction = history.value.pop();
 
+  if (lastAction.isDelete) {
+    toast.add({ severity: 'warn', summary: 'Cannot Undo', detail: 'Cannot undo delete from Recycle Bin', life: 2000 });
+    return;
+  }
+
   try {
-    await api.post('/speedsorter/undo', lastAction);
+    await api.post('/speedsorter/undo', null, {
+      params: { source: lastAction.dest, original: lastAction.source }
+    });
     files.value.splice(currentIndex.value, 0, lastAction.source);
     toast.add({ severity: 'info', summary: 'Undone', detail: 'Action reverted', life: 1000 });
   } catch (e) {
