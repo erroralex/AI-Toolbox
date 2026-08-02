@@ -31,7 +31,10 @@ import Textarea from 'primevue/textarea';
 import Chip from 'primevue/chip';
 import Divider from 'primevue/divider';
 import Dialog from 'primevue/dialog';
+import LButton from '@/components/ds/LButton.vue';
+import { Copy, X } from 'lucide-vue-next';
 import {useToast} from 'primevue/usetoast';
+
 
 const store = useBrowserStore();
 const toast = useToast();
@@ -71,6 +74,40 @@ const loras = computed(() => {
   if (meta.value.Loras) return meta.value.Loras.split(',').map(s => s.trim());
   return [];
 });
+
+const formatLoraName = (loraStr) => {
+  if (!loraStr) return '';
+  let cleaned = loraStr.trim();
+  if (cleaned.startsWith('<lora:') && cleaned.endsWith('>')) {
+    return cleaned;
+  }
+  const parts = cleaned.split(':');
+  if (parts.length >= 2) {
+    return `<lora:${parts[0].trim()}:${parts[1].trim()}>`;
+  }
+  return `<lora:${cleaned}>`;
+};
+
+
+const getLoraCleanName = (loraStr) => {
+  if (!loraStr) return '';
+  let cleaned = loraStr.trim();
+  if (cleaned.startsWith('<lora:') && cleaned.endsWith('>')) {
+    cleaned = cleaned.substring(6, cleaned.length - 1);
+  }
+  const parts = cleaned.split(':');
+  return parts[0].trim();
+};
+
+const copyLoraName = (loraStr) => {
+  const fullTag = formatLoraName(loraStr);
+  if (!fullTag) return;
+  navigator.clipboard.writeText(fullTag);
+  toast.add({ severity: 'info', summary: 'Copied', detail: `Copied "${fullTag}" to clipboard`, life: 1500 });
+};
+
+
+
 
 const openFileLocation = async () => {
   if (!store.selectedFile) return;
@@ -248,7 +285,17 @@ const cancelEdit = () => {
         <div class="mb-3">
           <span class="block font-bold text-sm text-500 mb-2">LoRAs</span>
           <div class="flex flex-wrap gap-2">
-            <Chip v-for="lora in loras" :key="lora" :label="lora" class="lora-chip text-sm"/>
+            <span
+              v-for="lora in loras"
+              :key="lora"
+              class="lora-chip text-xs cursor-pointer"
+              title="Click to copy LoRA name"
+              @click="copyLoraName(lora)"
+            >
+              {{ formatLoraName(lora) }}
+            </span>
+
+
             <span v-if="loras.length === 0" class="text-500 text-sm italic">None</span>
           </div>
         </div>
@@ -286,162 +333,123 @@ const cancelEdit = () => {
       </div>
     </div>
 
-    <Dialog v-model:visible="isRawVisible" modal header="Raw Metadata" class="glass-dialog w-6"
-            :style="{ width: '50vw' }">
+    <Dialog v-model:visible="isRawVisible" modal header="Raw Metadata" style="width: 640px;">
       <pre class="raw-meta-pre">{{ formattedRawMeta }}</pre>
       <template #footer>
-        <Button label="Copy Text" icon="pi pi-copy" @click="copyToClipboard(formattedRawMeta)"
-                class="p-button-secondary"/>
-        <Button label="Close" icon="pi pi-times" @click="isRawVisible = false" autofocus/>
+        <div class="flex justify-content-end gap-2 pt-2">
+          <LButton variant="secondary" size="sm" @click="copyToClipboard(formattedRawMeta)">
+            <template #icon><Copy :size="14" /></template>
+            Copy Text
+          </LButton>
+          <LButton variant="primary" size="sm" @click="isRawVisible = false">
+            <template #icon><X :size="14" /></template>
+            Close
+          </LButton>
+        </div>
       </template>
     </Dialog>
+
   </div>
 </template>
 
 <style scoped>
 .metadata-sidebar-glass {
-  background: var(--bg-sidebar-right);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-left: 1px solid var(--border-light);
-  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
-}
-
-.glass-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
+  background: var(--color-surface-1, #14151B);
+  border-left: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  box-shadow: var(--shadow-panel, 0 20px 60px -20px rgba(0,0,0,0.65));
 }
 
 .glass-input {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-input) !important;
-  color: var(--text-primary);
+  background: var(--color-surface-2, #23252F) !important;
+  border: 1px solid var(--color-border-default, rgba(255, 255, 255, 0.10)) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
+  border-radius: var(--radius-sm, 6px) !important;
 }
 
-.glass-input:enabled:focus {
-  box-shadow: none !important;
-  outline: none !important;
-  border-color: transparent !important;
-  border-image: var(--grad-hover) 1 !important;
-}
-
-.text-gradient {
-  background: var(--grad-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.raw-meta-pre {
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  padding: 1rem;
-  white-space: pre-wrap;
-  word-break: break-all;
-  max-height: 60vh;
-  overflow-y: auto;
-  color: var(--text-secondary);
+.glass-box {
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
 }
 
 .lora-chip {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  border: none !important;
-  position: relative;
-  z-index: 1;
-  overflow: visible !important;
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-surface-2, #23252F) !important;
+  color: var(--color-accent-secondary, #9B7EF5) !important;
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08)) !important;
+  border-radius: var(--radius-sm, 6px) !important;
+  font-family: var(--font-mono, "JetBrains Mono", monospace) !important;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  word-break: break-all;
+  transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.lora-chip::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  background: var(--grad-hover);
-  border-radius: 16px;
-  z-index: -2;
+.lora-chip:hover {
+  background: rgba(155, 126, 245, 0.12) !important;
+  border-color: rgba(155, 126, 245, 0.35) !important;
 }
 
-.lora-chip::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--bg-btn-inner);
-  border-radius: 16px;
-  z-index: -1;
-}
 
+:deep(.ai-tag-chip.p-chip),
 .ai-tag-chip {
-  background: rgba(100, 255, 218, 0.1) !important;
-  color: var(--accent-primary) !important;
-  border: 1px solid rgba(100, 255, 218, 0.3) !important;
+  background: var(--color-accent-primary-bg, rgba(79, 216, 208, 0.12)) !important;
+  color: var(--color-accent-primary, #4FD8D0) !important;
+  border: 1px solid rgba(79, 216, 208, 0.25) !important;
+  border-radius: 999px !important;
 }
 
+:deep(.ai-tag-chip.p-chip:hover),
 .ai-tag-chip:hover {
-  background: rgba(100, 255, 218, 0.2) !important;
+  background: rgba(79, 216, 208, 0.22) !important;
 }
 
-:deep(.glass-dialog) {
-  background: var(--bg-panel-opaque) !important;
-  border: 1px solid var(--border-input) !important;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  color: var(--text-primary) !important;
-}
-
-:deep(.glass-dialog .p-dialog-header) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  border-bottom: 1px solid var(--border-input) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-content) {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-footer) {
-  background: transparent !important;
-  border-top: 1px solid var(--border-input) !important;
-  padding: 1.5rem !important;
-}
-
-:deep(.glass-dialog .p-dialog-header-icon) {
-  color: var(--text-secondary) !important;
-}
-
-:deep(.glass-dialog .p-dialog-header-icon:hover) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-primary) !important;
-}
 
 .text-yellow-500 {
-  color: var(--status-warning) !important;
+  color: var(--color-warning, #F5B84E) !important;
 }
 
 .text-red-400 {
-  color: var(--status-danger) !important;
+  color: var(--color-danger, #F2665B) !important;
 }
 
 .text-blue-400 {
-  color: var(--accent-primary) !important;
+  color: var(--color-accent-primary, #4FD8D0) !important;
 }
 
 .text-500 {
-  color: var(--text-secondary) !important;
+  color: var(--color-text-secondary, #9294A3) !important;
 }
 
 .text-white {
-  color: var(--text-primary) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
 }
 
 .border-white-alpha-10 {
-  border-color: var(--border-light) !important;
+  border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.06)) !important;
 }
 
 .star-btn:focus {
   box-shadow: none !important;
   outline: none !important;
 }
+
+.raw-meta-pre {
+  background: var(--color-surface-2, #23252F);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
+  padding: 16px;
+  color: var(--color-text-primary, #F2F3F7);
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
 </style>
+
+

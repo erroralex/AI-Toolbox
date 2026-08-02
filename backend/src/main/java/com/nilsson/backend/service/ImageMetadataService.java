@@ -59,7 +59,21 @@ public class ImageMetadataService {
 
         int imageId = imageRepository.getIdByPath(path);
         if (imageId != -1 && imageMetadataRepository.hasMetadata(imageId)) {
-            return imageMetadataRepository.getMetadata(imageId);
+            Map<String, String> cached = imageMetadataRepository.getMetadata(imageId);
+            if (cached != null && !cached.isEmpty()) {
+                String cachedModel = cached.get("Model");
+                if (cachedModel != null && !cachedModel.isEmpty() && !"-".equals(cachedModel)) {
+                    return cached;
+                }
+                Map<String, String> fresh = metadataService.getExtractedData(file);
+                String freshModel = fresh != null ? fresh.get("Model") : null;
+                if (freshModel != null && !freshModel.isEmpty() && !"-".equals(freshModel)) {
+                    long dHash = dHashService.calculateDHash(file);
+                    saveMetadataAndIndex(imageId, fresh, dHash);
+                    return fresh;
+                }
+                return cached;
+            }
         }
 
         Map<String, String> meta = metadataService.getExtractedData(file);
@@ -69,6 +83,8 @@ public class ImageMetadataService {
         }
         return meta;
     }
+
+
 
     public boolean hasCachedMetadata(String path) {
         if (path == null || path.isBlank()) {

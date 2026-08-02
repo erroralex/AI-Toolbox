@@ -71,28 +71,23 @@
 }
 
 .lora-chip {
-    background: transparent !important;
-    color: var(--text-primary) !important;
-    border: none !important;
-    position: relative;
-    z-index: 1;
-    overflow: visible !important;
+    display: inline-flex;
+    align-items: center;
+    background: var(--color-surface-2, #23252F) !important;
+    color: var(--color-accent-secondary, #9B7EF5) !important;
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08)) !important;
+    border-radius: var(--radius-sm, 6px) !important;
+    font-family: var(--font-mono, "JetBrains Mono", monospace) !important;
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+    word-break: break-all;
+    cursor: pointer !important;
+    transition: all var(--duration-fast, 120ms) var(--ease-standard);
 }
 
-.lora-chip::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: var(--grad-hover);
-    border-radius: 16px;
-    z-index: -2;
+
+.lora-chip:hover {
+    background: rgba(155, 126, 245, 0.12) !important;
+    border-color: rgba(155, 126, 245, 0.35) !important;
 }
 
-.lora-chip::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--bg-btn-inner);
-    border-radius: 16px;
-    z-index: -1;
-}

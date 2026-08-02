@@ -20,3 +20,14 @@ electron/runtime/
 data/
 backend/data/
 frontend/data/
+
+# AI Assistant Junctions & Kits
+.claude/skills/
+drop-in-brain-main/
+
+# Documentation & Design System Repositories
+docs/
+Latent-Design-System/
+
+
+

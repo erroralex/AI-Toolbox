@@ -48,9 +48,11 @@ api.interceptors.response.use(
 
             if (status === 401) {
                 toast.error("Security Error: Unauthorized access blocked.");
+            } else if (status === 404) {
+                // Ignore global 404 toasts - callers (e.g. metadata/thumbnails) handle 404 gracefully
+                console.warn(`Resource not found (404): ${error.config?.url}`);
             } else if (data && data.message) {
-                if (status === 404) toast.warn(data.message);
-                else if (status >= 500) toast.error(`System Error: ${data.message}`);
+                if (status >= 500) toast.error(`System Error: ${data.message}`);
                 else toast.error(data.message);
             } else {
                 toast.error(`Error ${status}: An unexpected error occurred.`);
@@ -58,7 +60,7 @@ api.interceptors.response.use(
         } else if (error.request) {
             toast.error("Network Error: Backend is unreachable.");
         } else {
-            toast.error("Request Error: " + error.message);
+            toast.error("Application Error occurred.");
         }
         return Promise.reject(error);
     }

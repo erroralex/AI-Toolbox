@@ -108,4 +108,45 @@ class CommonStrategyTest {
 
         assertEquals("1 (distilled 3.5)", results.get("CFG"));
     }
+
+    @Test
+    @DisplayName("parse should extract Model and LoRAs from Civitai resources JSON array")
+    void testCivitaiResourcesParsing() {
+        String metadata = """
+                inksketch, a digital painting in the ck-js style, A lively triangular piece of cheese
+                Negative prompt:\s
+                Steps: 25, Sampler: Undefined, CFG scale: 3.5, Seed: 445954347, Size: 1024x1024, Clip skip: 2, Civitai resources: [{"type":"checkpoint","modelVersionId":691639,"modelName":"FLUX","modelVersionName":"Dev"},{"type":"lora","weight":0.55,"modelVersionId":978472,"modelName":"OB Semi-realistic portrait painting","modelVersionName":"v2.0"}]
+                """;
+
+        Map<String, String> results = strategy.parse(metadata);
+
+        assertEquals("FLUX (Dev)", results.get("Model"));
+        assertEquals("25", results.get("Steps"));
+        assertEquals("Undefined", results.get("Sampler"));
+        assertEquals("3.5", results.get("CFG"));
+        assertEquals("445954347", results.get("Seed"));
+        assertEquals("1024", results.get("Width"));
+        assertEquals("1024", results.get("Height"));
+        assertNotNull(results.get("Loras"));
+        assertTrue(results.get("Loras").contains("<lora:OB Semi-realistic portrait painting:0.55>"));
+    }
+
+    @Test
+    @DisplayName("parse should extract Model and LoRAs with escaped Unicode sequences in Civitai resources")
+    void testEscapedUnicodeCivitaiResources() {
+        String metadata = "inksketch, a digital painting\nNegative prompt: \nSteps: 25, Sampler: Undefined, CFG scale: 3.5, Seed: 445954347, Size: 1024x1024, Clip skip: 2, Civitai resources: [{\"type\":\"checkpoint\",\"modelVersionId\":691639,\"modelName\":\"FLUX\",\"modelVersionName\":\"Dev\"},{\"type\":\"lora\",\"weight\":0.55,\"modelVersionId\":978472,\"modelName\":\"OB\\u534A\\u5199\\u5B9E\\u8096\\u50CF\\u753B Semi-realistic portrait painting\",\"modelVersionName\":\"v2.0\"},{\"type\":\"lora\",\"weight\":0.7,\"modelVersionId\":1075265,\"modelName\":\"Sommo Sci-Fi Concept Art by ChronoKnight - [FLUX & IL]\",\"modelVersionName\":\"FLUX v1.0\"}], Civitai metadata: {}";
+
+        Map<String, String> results = strategy.parse(metadata);
+
+        assertEquals("FLUX (Dev)", results.get("Model"));
+        assertEquals("25", results.get("Steps"));
+        assertEquals("Undefined", results.get("Sampler"));
+        assertEquals("3.5", results.get("CFG"));
+        assertEquals("445954347", results.get("Seed"));
+        assertNotNull(results.get("Loras"));
+        assertTrue(results.get("Loras").contains("<lora:OB半写实肖像画 Semi-realistic portrait painting:0.55>"));
+        assertTrue(results.get("Loras").contains("<lora:Sommo Sci-Fi Concept Art by ChronoKnight - [FLUX & IL]:0.7>"));
+    }
 }
+
+

@@ -237,26 +237,9 @@ defineExpose({ gridCols });
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 5px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
 .image-card-wrapper {
   position: relative;
-  border-radius: 6px;
+  border-radius: var(--radius-md, 8px);
   overflow: hidden;
   cursor: pointer;
 }
@@ -264,8 +247,8 @@ defineExpose({ gridCols });
 .outline-active {
   position: relative;
   z-index: 1;
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--color-accent-primary, #4FD8D0);
   outline-offset: 2px;
-  box-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.5);
+  box-shadow: var(--glow-primary, 0 0 0 3px rgba(79, 216, 208, 0.16));
 }
 </style>

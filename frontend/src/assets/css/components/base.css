@@ -5,11 +5,12 @@
 
 body {
     margin: 0;
-    font-family: var(--font-family, 'Inter', sans-serif);
-    background-color: var(--bg-app);
-    background-image: var(--bg-app-image);
+    font-family: var(--font-sans, Inter, sans-serif);
+    background-color: var(--color-bg-canvas, #0A0A0D);
+    background-image: radial-gradient(circle at 10% 10%, rgba(79, 216, 208, 0.04) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 90%, rgba(155, 126, 245, 0.04) 0%, transparent 40%);
     background-attachment: fixed;
-    color: var(--text-primary);
+    color: var(--color-text-primary, #F2F3F7);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
@@ -17,46 +18,67 @@ body {
 
 /* --- Global Scrollbar Styling --- */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
+    background: var(--color-surface-1, #14151B);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 4px;
+    background: var(--color-surface-2, #23252F);
+    border-radius: var(--radius-sm, 6px);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
+    background: var(--color-border-strong, rgba(255, 255, 255, 0.18));
 }
 
 /* --- Typography Utilities --- */
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-muted { color: var(--text-muted); }
+.text-primary { color: var(--color-text-primary, #F2F3F7); }
+.text-secondary { color: var(--color-text-secondary, #9294A3); }
+.text-muted { color: var(--color-text-tertiary, #6F7180); }
+.text-white { color: var(--color-text-primary, #F2F3F7); }
 
 .text-gradient {
-    background: var(--grad-text);
+    background: var(--gradient-brand-text, linear-gradient(90deg, #4FD8D0, #9B7EF5));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 800;
 }
 
-/* --- Glass Effects --- */
+/* --- Shared View Header (title + subtitle used by top-level tool views) --- */
+.view-title-hero {
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    background: var(--gradient-brand-text, linear-gradient(90deg, #67E0D8, #9B7EF5));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.view-subtitle {
+    font-family: var(--font-sans, Inter, sans-serif);
+    font-size: 14px;
+    color: var(--color-text-secondary, #9294A3);
+    margin: 0;
+}
+
+/* --- Glass Panels & Surfaces --- */
 .glass-panel {
-    background: var(--bg-panel);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--shadow-panel);
+    background: var(--color-surface-1, #14151B);
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.06));
+    box-shadow: var(--shadow-card, 0 1px 2px rgba(0,0,0,0.4));
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius-lg, 12px);
 }
+
 
 .glass-panel::after {
     content: "";

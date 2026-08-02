@@ -199,7 +199,7 @@ onUnmounted(() => {
       <img v-if="mainImageUrl"
            :key="mainImageUrl"
            :src="mainImageUrl"
-           class="absolute inset-0 z-1 shadow-8"
+           class="absolute inset-0 z-1"
            :class="{ 'opacity-100': isHighResReady, 'opacity-0': !isHighResReady }"
            style="transition: opacity 0.3s ease;"
            :style="imageStyle"
@@ -214,14 +214,14 @@ onUnmounted(() => {
       <div v-if="!mainImageUrl" class="text-white text-xl z-2">No image selected</div>
 
       <div
-          class="absolute left-0 top-0 bottom-0 w-4rem flex align-items-center justify-content-center hover:surface-white-alpha-10 cursor-pointer transition-colors transition-duration-200 z-2"
+          class="absolute left-0 top-0 bottom-0 w-4rem flex align-items-center justify-content-center nav-arrow-btn cursor-pointer transition-colors transition-duration-200 z-2"
           @click="store.navigate(-1)">
-        <i class="pi pi-chevron-left text-4xl text-white-alpha-50"></i>
+        <i class="pi pi-chevron-left text-4xl nav-arrow-icon"></i>
       </div>
       <div
-          class="absolute right-0 top-0 bottom-0 w-4rem flex align-items-center justify-content-center hover:surface-white-alpha-10 cursor-pointer transition-colors transition-duration-200 z-2"
+          class="absolute right-0 top-0 bottom-0 w-4rem flex align-items-center justify-content-center nav-arrow-btn cursor-pointer transition-colors transition-duration-200 z-2"
           @click="store.navigate(1)">
-        <i class="pi pi-chevron-right text-4xl text-white-alpha-50"></i>
+        <i class="pi pi-chevron-right text-4xl nav-arrow-icon"></i>
       </div>
     </div>
 
@@ -234,12 +234,30 @@ onUnmounted(() => {
   background: transparent;
 }
 
+.nav-arrow-btn {
+  background: transparent;
+  transition: background var(--duration-fast, 120ms) var(--ease-standard);
+}
+
+.nav-arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-arrow-icon {
+  color: var(--color-text-tertiary, #6F7180);
+  transition: color var(--duration-fast, 120ms) var(--ease-standard);
+}
+
+.nav-arrow-btn:hover .nav-arrow-icon {
+  color: var(--color-text-primary, #F2F3F7);
+}
+
 .text-red-400 {
-  color: var(--status-danger) !important;
+  color: var(--color-danger, #F2665B) !important;
 }
 
 .text-white {
-  color: var(--text-primary) !important;
+  color: var(--color-text-primary, #F2F3F7) !important;
 }
 
 .opacity-0 {

@@ -1,0 +1,28 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(./mvnw test:*)",
+      "Bash(./mvnw compile:*)",
+      "Bash(./mvnw clean package:*)",
+      "Bash(mvnw.cmd test:*)",
+      "Bash(mvnw.cmd compile:*)",
+      "Bash(mvnw.cmd clean package:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run dist:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/application-prod.yml)",
+      "Read(./**/application-prod.properties)",
+      "Read(./**/secrets/**)"
+    ]
+  }
+}

@@ -71,9 +71,14 @@ public class CommonStrategy implements MetadataStrategy {
             }
 
             extractLorasFromText(positivePrompt, results);
+            parseCivitaiResources(remaining, results);
+
+            // Clean up embedded JSON structures (e.g. Civitai resources, Civitai metadata) from remaining parameters
+            String cleanRemaining = remaining.replaceAll("Civitai resources:\\s*\\[.*?\\]", "")
+                                            .replaceAll("Civitai metadata:\\s*\\{.*?\\}", "");
 
             Pattern paramPattern = Pattern.compile("([^:,]+):\\s*([^,]+)(?:,|$)");
-            Matcher matcher = paramPattern.matcher(remaining);
+            Matcher matcher = paramPattern.matcher(cleanRemaining);
 
             while (matcher.find()) {
                 String key = matcher.group(1).trim();
@@ -124,6 +129,70 @@ public class CommonStrategy implements MetadataStrategy {
         }
     }
 
+    private void parseCivitaiResources(String text, Map<String, String> results) {
+        int idx = text.indexOf("Civitai resources:");
+        if (idx == -1) return;
+
+        int startJson = text.indexOf('[', idx);
+        if (startJson == -1) return;
+
+        int bracketCount = 0;
+        int endJson = -1;
+        for (int i = startJson; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '[') bracketCount++;
+            else if (c == ']') {
+                bracketCount--;
+                if (bracketCount == 0) {
+                    endJson = i + 1;
+                    break;
+                }
+            }
+        }
+
+        if (endJson != -1) {
+            String jsonStr = text.substring(startJson, endJson);
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                JsonNode arrayNode = mapper.readTree(jsonStr);
+                if (arrayNode.isArray()) {
+                    java.util.List<String> loraList = new java.util.ArrayList<>();
+                    for (JsonNode item : arrayNode) {
+                        String type = item.path("type").asText();
+                        String modelName = item.path("modelName").asText();
+                        String version = item.path("modelVersionName").asText();
+
+                        if ("checkpoint".equalsIgnoreCase(type)) {
+                            if (!results.containsKey("Model") || results.get("Model").isEmpty() || "-".equals(results.get("Model"))) {
+                                String fullModel = modelName;
+                                if (!version.isEmpty() && !version.equalsIgnoreCase("default")) {
+                                    fullModel += " (" + version + ")";
+                                }
+                                results.put("Model", fullModel);
+                            }
+                        } else if ("lora".equalsIgnoreCase(type)) {
+                            double weight = item.path("weight").asDouble(1.0);
+                            String loraStr = "<lora:" + modelName + ":" + weight + ">";
+                            loraList.add(loraStr);
+                        }
+                    }
+
+                    if (!loraList.isEmpty()) {
+                        String existing = results.get("Loras");
+                        if (existing == null || existing.isEmpty()) {
+                            results.put("Loras", String.join(", ", loraList));
+                        } else {
+                            results.put("Loras", existing + ", " + String.join(", ", loraList));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse Civitai resources JSON array", e);
+            }
+        }
+    }
+
+
     @Override
     public void extract(String key, JsonNode value, JsonNode parentNode, Map<String, String> results) {
         try {
@@ -156,7 +225,6 @@ public class CommonStrategy implements MetadataStrategy {
             }
         } catch (Exception e) {
             log.error("Error during JSON extraction for key: {}", key, e);
-            // We do not throw here to allow other strategies to continue if one key fails
         }
     }
 

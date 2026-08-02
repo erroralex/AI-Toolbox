@@ -4,6 +4,7 @@ import com.nilsson.backend.model.AppSettings;
 import com.nilsson.backend.service.UserDataManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -11,7 +12,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -76,5 +82,22 @@ class SpeedSorterControllerTest {
                 .andExpect(status().isOk());
 
         verify(userDataManager).batchDeleteFiles(List.of("/to-delete.png"));
+    }
+
+    @Test
+    @DisplayName("POST /api/speedsorter/undo should restore the file to its original location")
+    void undoMove_ShouldRestoreFileToOriginalLocation(@TempDir Path tempDir) throws Exception {
+        Path currentLocation = tempDir.resolve("moved.png");
+        Path originalLocation = tempDir.resolve("original").resolve("moved.png");
+        Files.createDirectories(originalLocation.getParent());
+        Files.writeString(currentLocation, "content");
+
+        mockMvc.perform(post("/api/speedsorter/undo")
+                        .param("source", currentLocation.toString())
+                        .param("original", originalLocation.toString()))
+                .andExpect(status().isOk());
+
+        assertThat(Files.exists(originalLocation)).isTrue();
+        assertThat(Files.exists(currentLocation)).isFalse();
     }
 }

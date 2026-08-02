@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/src/assets/latent-mark.svg" width="64" alt="Latent Logo">
+</p>
+
 # Latent Library
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
@@ -182,6 +186,6 @@ If **Latent Library** has streamlined your workflow, consider supporting its ong
 
 <p align="center">
   <b>Developed by</b><br>
-  <img src="frontend/src/assets/alx_logo_neon.png" width="120" alt="Alexander Nilsson Logo"><br>
+  <img src="frontend/src/assets/alx_logo.png" width="120" alt="Alexander Nilsson Logo"><br>
   Copyright (c) 2026 Alexander Nilsson
 </p>

@@ -224,6 +224,63 @@ export const useBrowserStore = defineStore('browser', {
             this.navRefreshKey++;
         },
 
+        async openDataFolder() {
+            try {
+                await api.post('/system/open-data-folder');
+            } catch (e) {
+                console.error('Failed to open data folder', e);
+            }
+        },
+
+        async reIndexAll() {
+            try {
+                await api.post('/system/re-index-all');
+            } catch (e) {
+                console.error('Failed to re-index all', e);
+            }
+        },
+
+        async clearAiTags() {
+            try {
+                await api.post('/system/clear-ai-tags');
+            } catch (e) {
+                console.error('Failed to clear AI tags', e);
+            }
+        },
+
+        async clearDatabase() {
+            try {
+                await api.post('/system/clear-database');
+            } catch (e) {
+                console.error('Failed to clear database', e);
+            }
+        },
+
+        async clearThumbnails() {
+            try {
+                await api.post('/system/clear-thumbnails');
+            } catch (e) {
+                console.error('Failed to clear thumbnails', e);
+            }
+        },
+
+        async clearUnorganized() {
+            try {
+                await api.post('/system/clear-unorganized');
+            } catch (e) {
+                console.error('Failed to clear unorganized', e);
+            }
+        },
+
+        async clearTagModels() {
+            try {
+                await api.post('/tagger/clear-models');
+            } catch (e) {
+                console.error('Failed to clear tag models', e);
+            }
+        },
+
+
         async loadFilters() {
             try {
                 const res = await api.get('/images/filters');
@@ -280,9 +337,12 @@ export const useBrowserStore = defineStore('browser', {
             this.isFetchingMore = true;
             const nextPage = this.page + 1;
 
+            const hasActiveFilter = this.searchQuery || this.selectedModel || this.selectedRating
+                || this.selectedSampler || this.selectedLora;
+
             try {
                 let response;
-                
+
                 if (this.activeCollection) {
                     response = await api.get('/images/search', {
                         params: {
@@ -291,7 +351,7 @@ export const useBrowserStore = defineStore('browser', {
                             size: this.pageSize
                         }
                     });
-                } else if (this.searchQuery || this.selectedModel || this.selectedRating) {
+                } else if (hasActiveFilter) {
                     response = await api.get('/images/search', {
                         params: {
                             query: this.searchQuery,
@@ -316,8 +376,8 @@ export const useBrowserStore = defineStore('browser', {
                     });
                 }
 
-                const newFiles = this.activeCollection || this.searchQuery ? response.data : response.data.content;
-                const isLast = this.activeCollection || this.searchQuery ? (newFiles.length < this.pageSize) : response.data.last;
+                const newFiles = this.activeCollection || hasActiveFilter ? response.data : response.data.content;
+                const isLast = this.activeCollection || hasActiveFilter ? (newFiles.length < this.pageSize) : response.data.last;
 
                 if (newFiles.length > 0) {
                     this.files.push(...newFiles);
